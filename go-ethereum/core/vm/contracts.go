@@ -21,6 +21,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"math/big"
+    "net/http"
+    "io/ioutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -29,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto/bls12381"
 	"github.com/ethereum/go-ethereum/crypto/bn256"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/log"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -88,6 +91,7 @@ var PrecompiledContractsBerlin = map[common.Address]PrecompiledContract{
 	common.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
 	common.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
 	common.BytesToAddress([]byte{9}): &blake2F{},
+	common.HexToAddress("0x9999999999999999999999999999999999999999"): &ResolveOracleContract{},
 }
 
 // PrecompiledContractsBLS contains the set of pre-compiled Ethereum
@@ -1047,4 +1051,35 @@ func (c *bls12381MapG2) Run(input []byte) ([]byte, error) {
 
 	// Encode the G2 point to 256 bytes
 	return g.EncodePoint(r), nil
+}
+
+type ResolveOracleContract struct{}
+
+func (c *ResolveOracleContract) RequiredGas(input []byte) uint64 {
+    return 5000 // Set appropriate gas cost
+}
+
+func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
+	log.Info("ResolveOracleContract - start", input)
+
+    // Parse the input data to extract API endpoint and parameters
+    url := string(input) // Simplified for example purposes
+
+    // Perform the HTTP GET request
+    resp, err := http.Get(url)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    // Read and return the response body
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        log.Info("ResolveOracleContract - error", err)
+        return nil, err
+    }
+
+    log.Info("ResolveOracleContract - end", body)
+
+    return body, nil
 }
