@@ -4,7 +4,7 @@ import { OracleCaller } from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const contractAddress = "0x50e52f7F68e6216Ed8B0Ff3709EF133831d1e3fa";
+  const contractAddress = "0xb6dCF8e86eb470ebFDf80ab4b2D06AA17DA7860B";
 
   const oracleCaller = await ethers.getContractAt("OracleCaller", contractAddress) as OracleCaller;
 
@@ -13,6 +13,16 @@ async function main() {
   const result = await oracleCaller.callAPI(inputData);
 
   console.log("Result:", result.toString());
+
+  const tx = await oracleCaller.callAPITx(inputData);
+
+  console.log("Transaction hash:", tx.hash);
+
+  const result2 = await tx.wait();
+
+  console.log("Transaction complete");
+
+  console.log("Result:", result2?.logs);
 }
 
 main()
