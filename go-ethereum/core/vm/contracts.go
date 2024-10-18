@@ -22,7 +22,10 @@ import (
 	"errors"
 	"math/big"
     "net/http"
-    "io/ioutil"
+	"fmt"
+	"encoding/json"
+
+	"github.com/tidwall/gjson"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -1059,27 +1062,134 @@ func (c *ResolveOracleContract) RequiredGas(input []byte) uint64 {
     return 5000 // Set appropriate gas cost
 }
 
-func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
-	log.Info("ResolveOracleContract - start", input)
-
-    // Parse the input data to extract API endpoint and parameters
-    url := string(input) // Simplified for example purposes
-
-    // Perform the HTTP GET request
-    resp, err := http.Get(url)
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-
-    // Read and return the response body
-    body, err := ioutil.ReadAll(resp.Body)
-    if err != nil {
-        log.Info("ResolveOracleContract - error", err)
-        return nil, err
-    }
-
-    log.Info("ResolveOracleContract - end", body)
-
-    return body, nil
+type DataFeed struct {
+	DataFeedName string   `json:"dataFeedName"`
+	Sources      []Source `json:"sources"`
+	AggType      string   `json:"aggType"`
 }
+
+// Sources represents each source in the source array
+type Source struct {
+	URL  string `json:"url"`
+	Path string `json:"path"`
+}
+
+func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
+	url := string(input)
+
+	// Make the HTTP GET request to fetch the JSON data
+	resp, err := http.Get(url)
+	if err != nil {
+	}
+	defer resp.Body.Close()
+
+	// Check if the response status is OK
+	if resp.StatusCode != http.StatusOK {
+	}
+
+	// Unmarshal JSON data into struct
+	var dataFeed DataFeed
+	err = json.NewDecoder(resp.Body).Decode(&dataFeed)
+	if err != nil {
+	}
+
+	switch dataFeed.AggType {
+		case "average":
+			sum := 0
+			count := 0
+
+			// Loop over the sources, extract URL and path, and make HTTP GET requests
+			for _, source := range dataFeed.Sources {
+				sourceURL := source.URL
+				sourcePath := source.Path
+
+				// Make the request to the source URL
+				resp, err := http.Get(sourceURL)
+				if err != nil {
+					continue
+				}
+				defer resp.Body.Close() // Defer close for the inner response
+
+				// Read the response body
+				var result map[string]interface{}
+				err = json.NewDecoder(resp.Body).Decode(&result)
+				if err != nil {
+				}
+
+				// Convert the result back to JSON for GJSON to parse
+				jsonData, err := json.Marshal(result)
+				if err != nil {
+				}
+
+				// Use GJSON to navigate the JSON using the path
+				value := gjson.Get(string(jsonData), sourcePath)
+				floatValue := value.Float() // This will give you the float64 value
+				intValue := int(floatValue)
+
+				if !value.Exists() {
+				} else {
+					sum += intValue
+					count++
+				}
+			}
+
+			if count > 0 {
+				average := float64(sum) / float64(count)
+				intAverage := int(average)
+				priceStr := fmt.Sprintf("%f", intAverage)
+				log.Info("Price: ", priceStr)
+				return []byte(priceStr), nil
+			} else {
+				countStr := fmt.Sprintf("%f", count)
+				log.Info("Division by zero: ", countStr)
+				return []byte(countStr), nil
+			}
+
+		case "max":
+			current_max := 0.0
+	
+			// Loop over the sources, extract URL and path, and make HTTP GET requests
+			for _, source := range dataFeed.Sources {
+				sourceURL := source.URL
+				sourcePath := source.Path
+	
+				// Make the request to the source URL
+				resp, err := http.Get(sourceURL)
+				if err != nil {
+					continue
+				}
+				defer resp.Body.Close() // Defer close for the inner response
+	
+				// Read the response body
+				var result map[string]interface{}
+				err = json.NewDecoder(resp.Body).Decode(&result)
+				if err != nil {
+				}
+	
+				// Convert the result back to JSON for GJSON to parse
+				jsonData, err := json.Marshal(result)
+				if err != nil {
+				}
+	
+				// Use GJSON to navigate the JSON using the path
+				value := gjson.Get(string(jsonData), sourcePath)
+				floatValue := value.Float() // This will give you the float64 value
+	
+				if !value.Exists() {
+				} else {
+					if floatValue > current_max {
+						current_max = floatValue
+					}
+				}
+				
+				fmt.Printf("Raw value at path '%s' in response from %s: %s\n", sourcePath, sourceURL, value.String())
+			}
+			intMax := int(current_max * 10)
+			intMaxStr := fmt.Sprintf("%f", intMax)
+			return []byte(intMaxStr), nil	
+
+		}
+
+		return []byte{0}, nil
+}
+

@@ -7,10 +7,11 @@ contract OracleCaller {
 
     event APIResponse(string response);
 
-    function callAPI(bytes memory data) public view returns (bytes memory) {
+    function callAPI(bytes memory data) public view returns (string memory) {
         (bool success, bytes memory result) = oracleContract.staticcall(data);
         require(success, "API call failed");
-        return result;
+        string memory converted = string(result);
+        return converted;
     }
 
     function callAPITx(bytes memory data) public {
