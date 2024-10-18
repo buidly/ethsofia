@@ -6,20 +6,11 @@ import {
 
 function StartNodeComponent() {
   return (
-    <div
-      style={{
-        border: '1px solid green',
-        background: '#eee',
-        color: '#222',
-        padding: 10,
-        fontSize: 12,
-        borderRadius: 10,
-      }}
-    >
+    <div className='flex border border-[#212121] bg-[#fdfdfc] rounded-3xl rounded-l-lg p-4 text-md'>
       <div>
         Start
       </div>
-      <Handle type="source" position={Position.Right} />
+      <Handle type="source" position={Position.Right} className='h-5 w-2 rounded-none  border border-[#212121]' />
     </div>
   );
 }
