@@ -4,7 +4,7 @@ import { OracleCaller } from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const contractAddress = "0x030739eAC628af0f53683b480FA3Fc4FA8D1b602";
+  const contractAddress = "0xF8cE6c779Ffbc0f4a652DE3a97EF4B34Acc69186";
 
   const oracleCaller = await ethers.getContractAt("OracleCaller", contractAddress) as OracleCaller;
 
