@@ -1143,7 +1143,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			}
 
 			// Log the data feed response with source URL and int value
-			log.Error("Data feed response from " + sourceURL + " is " + intValue)
+			log.Error("Data feed response from " + sourceURL + " is " + string(intValue))
 		}
 
 		if count > 0 {
@@ -1189,7 +1189,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			floatValue := value.Float() // This will give you the float64 value
 
 			// Log the data feed response with source URL and int value
-			log.Error("Data feed response from " + sourceURL + " is " + floatValue)
+			log.Error("Data feed response from " + sourceURL + " is " + string(int(floatValue)))
 
 			if !value.Exists() {
 			} else {
