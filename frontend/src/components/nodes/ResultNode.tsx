@@ -37,10 +37,10 @@ function ResultNodeComponent({ id, data }: NodeProps<Node<{ aggregate: string }>
       <div>
         Result:
         <select value={data.aggregate} onChange={(e) => updateNodeData(id, { aggregate: e.target.value })}>
-          <option value="min">min</option>
-          <option value="max">max</option>
-          <option value="avg">avg</option>
-          <option value="sum">sum</option>
+          <option value="min">MIN</option>
+          <option value="max">MAX</option>
+          <option value="average">AVERAGE</option>
+          <option value="sum">SUM</option>
         </select>
         {/* {textNodes.map(({ data }, i) => <div key={i}>{(data as any).text}</div>) ||
           'none'} */}

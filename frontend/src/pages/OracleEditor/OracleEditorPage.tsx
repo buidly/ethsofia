@@ -1,8 +1,9 @@
 import { addEdge, Controls, Edge, ReactFlow, ReactFlowProvider, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
 import { useCallback, useRef, useState } from "react";
-import { MyNode } from "../../utils";
+import * as utils from "../../utils";
 import { DataSourceNode, ResultNode, StartNode } from "../../components";
 import { DnDProvider, Sidebar, useDnD } from "./components";
+import axios from "axios";
 
 
 const nodeTypes = {
@@ -11,7 +12,7 @@ const nodeTypes = {
   result: ResultNode,
 };
 
-const initNodes: MyNode[] = [
+const initNodes: utils.MyNode[] = [
   {
     id: 'dndnode_0',
     type: 'start',
@@ -77,11 +78,51 @@ export const DnDFlow = () => {
     [screenToFlowPosition, type],
   );
 
+  const onExport = async () => {
+    console.log("exporting", title, nodes, edges);
+
+
+    const dataSourceNodes = nodes.filter((node: utils.MyNode) => node.type === 'dataSource') as utils.DataSourceNode[];
+    const resultNodes = nodes.filter((node: utils.MyNode) => node.type === 'result');
+    const resultNode = resultNodes[0] as utils.ResultNode;
+    // TODO add chesks
+
+    const jsonContent = {
+      "dataFeedName": title,
+      "source": dataSourceNodes.map((node) => ({
+        url: node.data.url,
+        path: node.data.path
+      })),
+      "aggType": resultNode.data.aggregate
+    }
+    const content = JSON.stringify(jsonContent, null, 2);
+    // const content = "A";
+
+    const basePublisherUrl = 'https://publisher.walrus-testnet.walrus.space';
+    const numEpochs = 1;
+    // const response = await axios.put(`${basePublisherUrl}/v1/store`, content, {
+    //   headers: {
+    //     // "Content-Type": "text/plain",
+    //     "Content-Type": "multipart/form-data",
+    //   }
+    // });
+
+    const response = fetch(`${basePublisherUrl}/v1/store?epochs=${numEpochs}`, {
+      method: "PUT",
+      body: content,
+    })
+
+    console.log('walrus response', response);
+  }
+
   return (
     <div>
       <div>
         project title:
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+      </div>
+      <div>
+        <button onClick={onExport}>Export</button>
       </div>
       <div>
         <Sidebar />
@@ -106,7 +147,6 @@ export const DnDFlow = () => {
     </div>
   );
 }
-
 
 export const OracleFlowEditor = () => (
   <ReactFlowProvider>
