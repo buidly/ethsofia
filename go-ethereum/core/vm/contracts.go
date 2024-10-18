@@ -1075,8 +1075,9 @@ type Source struct {
 }
 
 func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
-	log.Error("Am intrat")
 	url := string(input)
+
+	log.Error("ResolveOracle call detected for " + url)
 
 	// Make the HTTP GET request to fetch the JSON data
 	resp, err := http.Get(url)
@@ -1100,7 +1101,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 		log.Error("Failed to pretty print dataFeed: %v", err)
 	}
 	// Log the fetched source definition
-	log.Error("Fetched source definition from %s: \n%s", url, string(prettyDataFeed))
+	log.Error("Fetched source definition from " + url + ":\n" + string(prettyDataFeed))
 		
 	switch dataFeed.AggType {
 	case "average":
@@ -1142,14 +1143,14 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			}
 
 			// Log the data feed response with source URL and int value
-			log.Error("Data feed response from %s is %d", sourceURL, intValue)
+			log.Error("Data feed response from " + sourceURL + " is " + intValue)
 		}
 
 		if count > 0 {
 			average := float64(sum) / float64(count)
 			intAverage := int(average)
 			priceStr := fmt.Sprintf("%f", intAverage)
-			log.Error("Computed data feed with aggType=average is %s", priceStr)
+			log.Error("Computed data feed with aggType=average is " + priceStr)
 			return []byte(priceStr), nil
 		} else {
 			countStr := fmt.Sprintf("%f", count)
@@ -1188,7 +1189,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			floatValue := value.Float() // This will give you the float64 value
 
 			// Log the data feed response with source URL and int value
-			log.Error("Data feed response from %s is %d", sourceURL, floatValue)
+			log.Error("Data feed response from " + sourceURL + " is " + floatValue)
 
 			if !value.Exists() {
 			} else {
@@ -1201,7 +1202,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 		}
 		intMax := int(current_max)
 		intMaxStr := fmt.Sprintf("%f", intMax)
-		log.Error("Computed data feed with aggType=max is %s", intMaxStr)
+		log.Error("Computed data feed with aggType=max is " + intMaxStr)
 		return []byte(intMaxStr), nil
 	}
  
