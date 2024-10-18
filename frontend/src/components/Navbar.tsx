@@ -4,13 +4,16 @@ export const NavBar = () => {
   return (
     <div>
       <nav className="mt-6">
-        <div className="container mx-auto flex justify-between p-6 bg-red-50 rounded-3xl">
-          <Link to="/">
-            <img src="/snapdata-logo.png" alt="Logo" className="h-12" />
+        <div className="container mx-auto flex justify-between p-6 bg-white rounded-3xl text-md">
+          <Link to="/" className="w-48">
+            <img src="/snapdata-logo.png" alt="Logo" className="h-16" />
           </Link>
-          <div>
-            <a href="/login" className="mr-4">Login</a>
-            <a href="/register">Register</a>
+          <div className="flex items-center gap-6">
+            <Link to="/explore">Explore</Link>
+            <Link to="/about">About</Link>
+          </div>
+          <div className="flex items-center justify-end w-48">
+            <Link to="/" className="py-4 px-10 border-2 border-[#212121] rounded-3xl">Login</Link>
           </div>
         </div>
       </nav>

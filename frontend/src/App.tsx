@@ -1,7 +1,7 @@
 import "react";
 
 import '@xyflow/react/dist/style.css';
-import { HomePage, OracleEditorPage } from "./pages";
+import { ExplorePage, HomePage, OracleEditorPage } from "./pages";
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -9,6 +9,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+  },
+  {
+    path: "/explore",
+    element: <ExplorePage />,
   },
   {
     path: "/oracles/:id",
