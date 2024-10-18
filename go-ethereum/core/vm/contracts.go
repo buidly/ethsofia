@@ -1077,7 +1077,7 @@ type Source struct {
 func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 	url := string(input)
 
-	log.Error("ResolveOracle call detected for " + url)
+	log.Info(fmt.Sprintf("-----------> resolveOracle call detected for %s", url))
 
 	// Make the HTTP GET request to fetch the JSON data
 	resp, err := http.Get(url)
@@ -1098,10 +1098,10 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 	// Pretty-print the dataFeed struct
 	prettyDataFeed, err := json.MarshalIndent(dataFeed, "", " ")
 	if err != nil {
-		log.ErrorTest(fmt.Sprintf("Failed to pretty print dataFeed: %v", err))
+		fmt.Sprintf("Failed to pretty print dataFeed: %v", err)
 	}
 	// Log the fetched source definition
-	log.ErrorTest(fmt.Sprintf("Fetched source definition from %s: \n%s", url, string(prettyDataFeed)))
+	fmt.Sprintf("Fetched source definition from %s: \n%s", url, string(prettyDataFeed))
 
 	switch dataFeed.AggType {
 	case "average":
@@ -1143,18 +1143,18 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			}
 
 			// Log the data feed response with source URL and int value
-			log.Info(fmt.Sprintf("Data feed response from %s is %d", sourceURL, intValue))
+			log.Info(fmt.Sprintf("----------> Data feed response from %s is %d", sourceURL, intValue))
 		}
 
 		if count > 0 {
 			average := float64(sum) / float64(count)
 			intAverage := int(average)
 			priceStr := fmt.Sprintf("%f", intAverage)
-			log.ErrorTest(fmt.Sprintf("Computed data feed with aggType=average is %d", intAverage))
+			log.Info(fmt.Sprintf("----------> Computed data feed with aggType=average is %d", intAverage))
 			return []byte(priceStr), nil
 		} else {
 			countStr := fmt.Sprintf("%f", count)
-			log.Info(fmt.Sprintf("Division by zero: ", countStr))
+			log.Info(fmt.Sprintf("----------> Division by zero: ", countStr))
 			return []byte(countStr), nil
 		}
 
@@ -1190,7 +1190,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			intValue := int(floatValue)
 
 			// Log the data feed response with source URL and int value
-			log.ErrorTest(fmt.Sprintf("Data feed response from %s is %d", sourceURL, intValue))
+			log.Info(fmt.Sprintf("----------> Data feed response from %s is %d", sourceURL, intValue))
 
 			if !value.Exists() {
 			} else {
@@ -1202,7 +1202,7 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 		}
 		intMax := int(current_max)
 		intMaxStr := fmt.Sprintf("%f", intMax)
-		log.ErrorTest(fmt.Sprintf("Computed data feed with aggType=max is %d", intMax))
+		log.Info(fmt.Sprintf("----------> Computed data feed with aggType=max is %d", intMax))
 		return []byte(intMaxStr), nil
 	}
  
