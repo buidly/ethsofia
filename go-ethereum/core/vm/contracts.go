@@ -1075,8 +1075,9 @@ type Source struct {
 }
 
 func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
-
 	url := string(input)
+
+	log.Error("ResolveOracle call detected for " + url)
 
 	// Make the HTTP GET request to fetch the JSON data
 	resp, err := http.Get(url)
