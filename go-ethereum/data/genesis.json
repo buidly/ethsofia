@@ -16,7 +16,7 @@
     "grayGlacierBlock": 0,
     "ethash": {}
   },
-  "difficulty": "1",
+  "difficulty": "100",
   "gasLimit": "8000000",
   "alloc": {
     "0x4e9e11a3ed2900c87ec8a297f6d7769a862e464e": {

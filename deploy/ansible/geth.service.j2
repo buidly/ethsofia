@@ -1,0 +1,29 @@
+[Unit]
+Description=Ethereum Geth Node
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=ubuntu
+Type=simple
+Restart=on-failure
+RestartSec=10
+StandardOutput=null
+StandardError=null
+ExecStart=/home/ubuntu/go-ethereum/go-ethereum/build/bin/geth \
+          --datadir /home/ubuntu/go-ethereum/go-ethereum/build/bin/data \
+          --syncmode full \
+          --nat extip:{{ extip }} \
+          --http \
+          --http.api "admin,debug,web3,eth,txpool,personal,miner,net" \
+          --http.addr 0.0.0.0 \
+          --http.port 8545 \
+          --ws \
+          --ws.addr 0.0.0.0 \
+          --ws.port 8546 \
+          --bootnodes "{{ bootnode_enode }}" \
+          --networkid {{ networkid }} \
+          --mine \
+          --miner.etherbase "{{ etherbase }}"
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,35 @@
+---
+- name: Setup Geth Genesis in the ethsofia build/bin directory
+  hosts: validators
+  become: yes
+  become_user: "{{ ansible_user }}"  # Ensure tasks run as ansible_user
+  tasks:
+    - name: Stop the Geth service
+      systemd:
+        name: geth
+        state: stopped
+        enabled: yes
+      ignore_errors: yes
+
+    - name: Ensure the Geth data directory exists
+      file:
+        path: /home/{{ ansible_user }}/go-ethereum/go-ethereum/build/bin/data
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Remove existing blockchain data directory
+      file:
+        path: /home/{{ ansible_user }}/go-ethereum/go-ethereum/build/bin/data/geth
+        state: absent
+      ignore_errors: yes
+
+    - name: Initialize Geth with the existing genesis file
+      shell: /home/{{ ansible_user }}/go-ethereum/go-ethereum/build/bin/geth init --datadir /home/{{ ansible_user }}/go-ethereum/go-ethereum/build/bin/data /home/{{ ansible_user }}/go-ethereum/go-ethereum/data/genesis.json
+
+    - name: Start the Geth service
+      systemd:
+        name: geth
+        state: started
+        enabled: yes

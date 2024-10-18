@@ -1,0 +1,36 @@
+---
+- name: Install and configure Geth as a service
+  hosts: validators
+  become: yes
+  vars_files:
+    - etherbase.yml
+  vars:
+    networkid: 99001
+    bootnode_enode: "enode://c006ca825d38fa84f39d142af7ea8d2bf06441b9a5b1e08c900e39dd4c65b6626373e226ffe9df8b862b2c843acbcdf586add387ac35312af739409c6dde3b1b@34.91.219.14:0?discport=30305"
+
+  tasks:
+    - name: Ensure the Geth data directory exists
+      file:
+        path: /home/data
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Generate systemd service for Geth node
+      template:
+        src: geth.service.j2
+        dest: /etc/systemd/system/geth.service
+        mode: '0644'
+      vars:
+        etherbase: "{{ etherbases[inventory_hostname] }}"
+        extip: "{{ ansible_host }}"
+
+    - name: Reload systemd to pick up the new service
+      command: systemctl daemon-reload
+
+    - name: Enable Geth service to start on boot
+      systemd:
+        name: geth.service
+        enabled: yes
+        state: started

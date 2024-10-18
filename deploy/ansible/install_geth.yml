@@ -1,0 +1,98 @@
+---
+- name: Install Go Ethereum (Geth) and necessary dependencies
+  hosts: validators
+  become: yes  # Only for tasks that need root privileges
+  vars:
+    go_version: "1.21.1"
+    go_download_url: "https://golang.org/dl/go{{ go_version }}.linux-amd64.tar.gz"
+    install_dir: "/usr/local"
+    repo_url: "https://github.com/buidly/ethsofia"
+    github_token_file: "./github_token.txt"  # Path to the token file
+    repo_clone_dest: "/home/{{ ansible_user }}/go-ethereum"
+  
+  tasks:
+    - name: Ensure necessary system packages are installed
+      apt:
+        name:
+          - build-essential
+          - git
+          - wget
+          - make
+          - gcc
+          - g++
+        state: present
+        update_cache: yes
+
+    - name: Remove old Go installation (if any)
+      become: yes
+      shell: rm -rf "{{ install_dir }}/go"
+
+    - name: Download Go {{ go_version }}
+      become: yes
+      get_url:
+        url: "{{ go_download_url }}"
+        dest: "/tmp/go{{ go_version }}.tar.gz"
+
+    - name: Extract Go archive
+      become: yes
+      unarchive:
+        src: "/tmp/go{{ go_version }}.tar.gz"
+        dest: "{{ install_dir }}"
+        remote_src: yes
+
+    - name: Add Go binary path to profile
+      become: yes
+      lineinfile:
+        path: "/etc/profile"
+        line: 'export PATH=$PATH:/usr/local/go/bin'
+        state: present
+
+    - name: Source profile to update PATH
+      shell: . /etc/profile
+      become: yes
+
+    - name: Create GOPATH directory for the user
+      file:
+        path: "/home/{{ ansible_user }}/go"
+        state: directory
+        mode: "0755"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      become: no  # Run as the ansible_user
+
+    - name: Clone private GitHub repository
+      git:
+        repo: "https://github.com/buidly/ethsofia.git"
+        dest: "{{ repo_clone_dest }}"
+        version: "main"
+        force: yes
+        clone: yes
+        accept_hostkey: yes
+      become: no  # Run as the ansible_user
+
+    - name: Set ownership of the cloned directory to ansible user
+      file:
+        path: "{{ repo_clone_dest }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+      become: yes
+
+    - name: Set permissions to 777 for all files and directories in the repo
+      file:
+        path: "{{ repo_clone_dest }}"
+        state: directory
+        mode: '0777'
+        recurse: yes
+      become: yes
+
+    - name: Install Geth using make
+      shell: |
+        export PATH=$PATH:/usr/local/go/bin 
+        cd {{ repo_clone_dest }}
+        cd go-ethereum
+        make geth
+      args:
+        chdir: "{{ repo_clone_dest }}"
+      become: no  # Run as the ansible_user
