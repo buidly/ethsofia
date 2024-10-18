@@ -1,6 +1,5 @@
 import { addEdge, Background, Controls, ReactFlow, ReactFlowProvider, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import * as utils from "../../utils";
+import { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { DataSourceNode, NavBar, ResultNode, StartNode } from "../../components";
 import { DnDProvider, Sidebar, useDnD } from "./components";
 import axios from "axios";
@@ -10,6 +9,7 @@ import { Oracle } from "../../utils/types";
 import { API_URL } from "../../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faClose, faPencil, faSadTear, faSave } from "@fortawesome/free-solid-svg-icons";
+import React from "react";
 
 const nodeTypes = {
   start: StartNode,
@@ -27,7 +27,7 @@ const initialData: any = {
   },
 }
 
-export const DnDFlow = ({ oracle, onSave, isEditMode }: { oracle: Oracle, onSave: any, isEditMode: boolean }) => {
+export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracle, isEditMode: boolean }, ref) => {
   const reactFlowWrapper = useRef(null);
 
   const [title, setTitle] = useState(oracle.title);
@@ -36,6 +36,16 @@ export const DnDFlow = ({ oracle, onSave, isEditMode }: { oracle: Oracle, onSave
   const [edges, setEdges, onEdgesChange] = useEdgesState(oracle.edges);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
+
+  useImperativeHandle(ref, () => ({
+    fetchData() {
+      return fetchData()
+    }
+  }));
+
+  function fetchData() {
+    return { ...oracle, title, description, nodes, edges };
+  }
 
   const onConnect = useCallback(
     (connection: any) => setEdges((eds) => addEdge({
@@ -79,9 +89,6 @@ export const DnDFlow = ({ oracle, onSave, isEditMode }: { oracle: Oracle, onSave
 
   return (
     <div>
-      <div>
-        <button onClick={() => onSave({ ...oracle, title, description, nodes, edges }, oracle.isNew)}>Save</button>
-      </div>
       <div className="flex flex-row-reverse rows-6 gap-6 justify-between ">
         {isEditMode && (
           <div className="row-span-2 flex flex-col gap-6">
@@ -141,9 +148,11 @@ export const DnDFlow = ({ oracle, onSave, isEditMode }: { oracle: Oracle, onSave
       </div>
     </div>
   );
-}
+});
 
 export const OracleEditorPageContent = () => {
+  const flowRef = useRef()
+
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -206,65 +215,57 @@ export const OracleEditorPageContent = () => {
     )
   }
 
-  const onSave = async (data: Oracle, isNew?: boolean) => {
-    if (isNew) {
-      try {
-        const { isNew, ...oracleData } = data;
+  const onSave = async () => {
+    try {
+      const childResult = (flowRef.current as any).fetchData();
+      const { isNew, ...oracleData } = childResult;
+
+      if (isNew) {
         const result = await axios.post(`${API_URL}/oracles`, oracleData);
         console.log('new oracle', result.data);
         navigate(`/oracles/${result.data.id}`);
-      } catch (error) {
-        console.error("Error creating oracle", error);
-        // TODO show error
-      } finally {
         return;
       }
-    }
-    try {
-      const result = await axios.put(`${API_URL}/oracles/${data.id}`, data);
+
+      const result = await axios.put(`${API_URL}/oracles/${oracleData.id}`, oracleData);
       console.log('update oracle', result.data);
-
-      // navigate(`/oracles/${result.data.id}`);
+      setOracle(result.data);
     } catch (error) {
-      console.error("Error updating oracle", error);
-      // TODO show error
-    } finally {
-      return;
+      console.error("Error saving oracle", error);
     }
-
     return;
     // TODO move to server
-    const dataSourceNodes = data.nodes.filter((node: utils.MyNode) => node.type === 'dataSource') as utils.DataSourceNode[];
-    const resultNodes = data.nodes.filter((node: utils.MyNode) => node.type === 'result');
-    const resultNode = resultNodes[0] as utils.ResultNode;
-    // TODO add chesks
+    // const dataSourceNodes = data.nodes.filter((node: utils.MyNode) => node.type === 'dataSource') as utils.DataSourceNode[];
+    // const resultNodes = data.nodes.filter((node: utils.MyNode) => node.type === 'result');
+    // const resultNode = resultNodes[0] as utils.ResultNode;
+    // // TODO add chesks
 
-    const jsonContent = {
-      "dataFeedName": title,
-      "source": dataSourceNodes.map((node) => ({
-        url: node.data.url,
-        path: node.data.path
-      })),
-      "aggType": resultNode.data.aggregate
-    }
-    const content = JSON.stringify(jsonContent, null, 2);
-    // const content = "A";
+    // const jsonContent = {
+    //   "dataFeedName": title,
+    //   "source": dataSourceNodes.map((node) => ({
+    //     url: node.data.url,
+    //     path: node.data.path
+    //   })),
+    //   "aggType": resultNode.data.aggregate
+    // }
+    // const content = JSON.stringify(jsonContent, null, 2);
+    // // const content = "A";
 
-    const basePublisherUrl = 'https://publisher.walrus-testnet.walrus.space';
-    const numEpochs = 1;
-    // const response = await axios.put(`${basePublisherUrl}/v1/store`, content, {
-    //   headers: {
-    //     // "Content-Type": "text/plain",
-    //     "Content-Type": "multipart/form-data",
-    //   }
-    // });
+    // const basePublisherUrl = 'https://publisher.walrus-testnet.walrus.space';
+    // const numEpochs = 1;
+    // // const response = await axios.put(`${basePublisherUrl}/v1/store`, content, {
+    // //   headers: {
+    // //     // "Content-Type": "text/plain",
+    // //     "Content-Type": "multipart/form-data",
+    // //   }
+    // // });
 
-    const response = fetch(`${basePublisherUrl}/v1/store?epochs=${numEpochs}`, {
-      method: "PUT",
-      body: content,
-    })
+    // const response = fetch(`${basePublisherUrl}/v1/store?epochs=${numEpochs}`, {
+    //   method: "PUT",
+    //   body: content,
+    // })
 
-    console.log('walrus response', response);
+    // console.log('walrus response', response);
   }
 
   return (
@@ -276,7 +277,7 @@ export const OracleEditorPageContent = () => {
         </div>
         <div className="flex flex-row gap-2 items-start">
           {isEditMode && (
-            <button className="p-4 px-6 border-2 border-[#212121] bg-[#eff0a3] rounded-3xl flex items-center gap-3">
+            <button className="p-4 px-6 border-2 border-[#212121] bg-[#eff0a3] rounded-3xl flex items-center gap-3" onClick={onSave}>
               Save
               <FontAwesomeIcon icon={faSave} className="h-5 w-5" />
             </button>
@@ -307,7 +308,7 @@ export const OracleEditorPageContent = () => {
       <div>
         <ReactFlowProvider>
           <DnDProvider>
-            <DnDFlow oracle={oracle} onSave={onSave} isEditMode={isEditMode} />
+            <DnDFlow oracle={oracle} isEditMode={isEditMode} ref={flowRef} />
           </DnDProvider>
         </ReactFlowProvider>
       </div>
