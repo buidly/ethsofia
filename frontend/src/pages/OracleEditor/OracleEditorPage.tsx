@@ -1,13 +1,15 @@
-import { addEdge, Controls, ReactFlow, ReactFlowProvider, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
+import { addEdge, Background, Controls, ReactFlow, ReactFlowProvider, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as utils from "../../utils";
-import { DataSourceNode, ResultNode, StartNode } from "../../components";
+import { DataSourceNode, NavBar, ResultNode, StartNode } from "../../components";
 import { DnDProvider, Sidebar, useDnD } from "./components";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { Oracle } from "../../utils/types";
 import { API_URL } from "../../utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleNotch, faClose, faPencil, faSadTear, faSave } from "@fortawesome/free-solid-svg-icons";
 
 const nodeTypes = {
   start: StartNode,
@@ -25,10 +27,8 @@ const initialData: any = {
   },
 }
 
-export const DnDFlow = ({ oracle, onSave }: { oracle: Oracle, onSave: any }) => {
+export const DnDFlow = ({ oracle, onSave, isEditMode }: { oracle: Oracle, onSave: any, isEditMode: boolean }) => {
   const reactFlowWrapper = useRef(null);
-
-  const [isEditMode, setIsEditMode] = useState(false);
 
   const [title, setTitle] = useState(oracle.title);
   const [description, setDescription] = useState(oracle.description);
@@ -79,7 +79,6 @@ export const DnDFlow = ({ oracle, onSave }: { oracle: Oracle, onSave: any }) => 
 
   return (
     <div>
-      <button onClick={() => setIsEditMode(!isEditMode)}>edit mode: {isEditMode ? 'active' : 'disabled'}</button>
       <div>
         project title:
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!isEditMode} />
@@ -91,44 +90,52 @@ export const DnDFlow = ({ oracle, onSave }: { oracle: Oracle, onSave: any }) => 
       <div>
         <button onClick={() => onSave({ ...oracle, title, description, nodes, edges }, oracle.isNew)}>Save</button>
       </div>
-      <div>
-        <Sidebar />
-      </div>
-      <div className="dndflow">
-        <div className="reactflow-wrapper" ref={reactFlowWrapper} style={{ width: '800px', height: '600px', border: "2px solid pink" }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            nodeTypes={nodeTypes}
-            edgesFocusable={isEditMode}
-            nodesDraggable={isEditMode}
-            nodesConnectable={isEditMode}
-            nodesFocusable={isEditMode}
-            draggable={isEditMode}
-            panOnDrag={isEditMode}
-            elementsSelectable={isEditMode}
-            fitView
-          >
-            <Controls />
-          </ReactFlow>
+      <div className="flex flex-row-reverse rows-6 gap-6 justify-between ">
+        {isEditMode && (
+          <div className="row-span-2 bg-[#d8dfe9] rounded-3xl">
+            <Sidebar />
+          </div>
+        )}
+        <div className="dndflow flex-1">
+          <div className="reactflow-wrapper w-full h-[600px] bg-[#d8dfe9] border-[#d8dfe9] border-4 rounded-3xl" ref={reactFlowWrapper} >
+            <ReactFlow
+              className="w-full h-full"
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              edgesFocusable={isEditMode}
+              nodesDraggable={isEditMode}
+              nodesConnectable={isEditMode}
+              nodesFocusable={isEditMode}
+              draggable={isEditMode}
+              panOnDrag={isEditMode}
+              elementsSelectable={isEditMode}
+              fitView
+            >
+              <Background />
+              <Controls />
+            </ReactFlow>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export const OracleEditorPage = () => {
+export const OracleEditorPageContent = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
   const [oracle, setOracle] = useState<Oracle>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     const fetchOracle = async () => {
@@ -166,11 +173,21 @@ export const OracleEditorPage = () => {
   }, []);
 
   if (loading || !oracle) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center flex-col gap-4">
+        <FontAwesomeIcon icon={faCircleNotch} className="animate-spin h-10 w-10" />
+        <p>Loading..</p>
+      </div>
+    )
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="flex items-center justify-center flex-col gap-4">
+        <FontAwesomeIcon icon={faSadTear} className="h-10 w-10" />
+        <p>An error occurred</p>
+      </div>
+    )
   }
 
   const onSave = async (data: Oracle, isNew?: boolean) => {
@@ -236,16 +253,51 @@ export const OracleEditorPage = () => {
 
   return (
     <>
-      <header>
-        <h1>Oracle Flow Editor {id}</h1>
-      </header>
+      <div className="flex flex-row justify-between">
+        <div>
+          <p className="font-light text-sm">walrus id: {oracle.id}</p>
+          <h1 className="text-3xl">{oracle.title}</h1>
+        </div>
+        <div className="flex flex-row gap-2">
+          {isEditMode && (
+            <button className="p-4 px-6 border-2 border-[#212121] bg-[#eff0a3] rounded-3xl flex items-center gap-3">
+              Save
+              <FontAwesomeIcon icon={faSave} className="h-5 w-5" />
+            </button>
+          )}
+          <button className="p-4 px-6 border-2 border-[#212121] bg-[#fdfdfc] rounded-3xl flex items-center gap-3" onClick={() => setIsEditMode(!isEditMode)}>
+            {isEditMode ? (
+              <>
+                Close
+                <FontAwesomeIcon icon={faClose} className="h-5 w-5" />
+              </>
+            ) : (
+              <>
+                Edit
+                <FontAwesomeIcon icon={faPencil} className="h-5 w-5" />
+              </>
+            )}
+          </button>
+        </div>
+      </div>
       <main>
         <ReactFlowProvider>
           <DnDProvider>
-            <DnDFlow oracle={oracle} onSave={onSave} />
+            <DnDFlow oracle={oracle} onSave={onSave} isEditMode={isEditMode} />
           </DnDProvider>
         </ReactFlowProvider>
       </main>
     </>
   );
+}
+
+export const OracleEditorPage = () => {
+  return (
+    <div>
+      <NavBar />
+      <div className="container m-auto p-6 flex flex-col gap-6 mt-12">
+        <OracleEditorPageContent />
+      </div>
+    </div>
+  )
 }

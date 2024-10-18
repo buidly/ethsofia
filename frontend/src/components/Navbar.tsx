@@ -4,7 +4,7 @@ export const NavBar = () => {
   return (
     <div>
       <nav className="mt-6">
-        <div className="container mx-auto flex justify-between p-6 bg-white rounded-3xl text-md">
+        <div className="container mx-auto flex justify-between p-6 bg-[#fdfdfc] rounded-3xl text-md">
           <Link to="/" className="w-48">
             <img src="/snapdata-logo.png" alt="Logo" className="h-16" />
           </Link>
