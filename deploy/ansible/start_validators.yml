@@ -3,7 +3,7 @@
   become: yes  # Use sudo privileges if necessary
   tasks:
     - name: Attach to Geth and start mining
-      shell: echo "miner.start(2)" | /home/ubuntu/go-ethereum/go-ethereum/build/bin/geth attach http://localhost:8545
+      shell: echo "miner.start(100)" | /home/ubuntu/go-ethereum/go-ethereum/build/bin/geth attach http://localhost:8545
       register: miner_output
 
     - name: Display the output of the miner start command

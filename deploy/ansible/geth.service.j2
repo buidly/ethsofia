@@ -8,10 +8,11 @@ User=ubuntu
 Type=simple
 Restart=on-failure
 RestartSec=10
-StandardOutput=null
-StandardError=null
+StandardOutput=append:/var/log/eth.log
+StandardError=append:/var/log/eth.log
 ExecStart=/home/ubuntu/go-ethereum/go-ethereum/build/bin/geth \
           --datadir /home/ubuntu/go-ethereum/go-ethereum/build/bin/data \
+          --gcmode archive \
           --syncmode full \
           --nat extip:{{ extip }} \
           --http \
