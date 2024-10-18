@@ -7,13 +7,15 @@ import {
   type Node,
 } from '@xyflow/react';
 import axios from 'axios';
+import { JsonPathPicker } from "react-json-path-picker";
 
 function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, path: string }>>) {
   const { updateNodeData } = useReactFlow();
 
   const [isValidUrl, setIsValidUrl] = useState(true);
   const [responseExample, setResponseExample] = useState<any>({});
-  const [currentPath, setCurrentPath] = useState<string>('');
+  const [isPathExplorerOpen, setIsPathExplorerOpen] = useState(false);
+  const [selectedPath, setSelectedPath] = useState<string>('');
 
   useEffect(() => {
     const getUrlPaths = setTimeout(async () => {
@@ -28,7 +30,7 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
       try {
         const result = await axios.get(data.url);
         setResponseExample(result.data);
-        setCurrentPath('');
+        setSelectedPath('');
       } catch (error) {
         console.error(error);
       }
@@ -38,9 +40,10 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
 
   }, [data.url]);
 
-  console.log(currentPath, responseExample, responseExample[currentPath]);
-
-  const currentObjectPath = currentPath.length > 0 ? responseExample[currentPath] : responseExample;
+  const onPathChoosen = (path: string) => {
+    setSelectedPath(path);
+    setIsPathExplorerOpen(false);
+  }
 
   return (
     <div className='flex border border-[#212121] bg-[#fdfdfc] rounded-3xl p-4 text-md'>
@@ -55,26 +58,19 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
           />
         </div>
         <div>
-          TODO choose path
+          <button onClick={() => setIsPathExplorerOpen(true)}>Choose JSON path</button>
+          {isPathExplorerOpen && (
+            <div>
+              <JsonPathPicker
+                json={JSON.stringify(responseExample, null, 2)}
+                onChoose={onPathChoosen}
+                path={selectedPath}
+              />
+            </div>
+          )}
         </div>
         <div>
-          path
-          <input
-            type="text"
-            value={data.path}
-            onChange={(evt) => updateNodeData(id, { path: evt.target.value })}
-          />
-          currentPath: {currentPath}
-          <hr />
-          {currentObjectPath &&
-            <select value={currentPath} onChange={e => setCurrentPath(currentPath.length > 0 ? `${currentPath}.${e.target.value}` : e.target.value)}>
-              {Object.keys(currentObjectPath).map((key) => (
-                <option key={key} value={key}>
-                  {key}
-                </option>
-              ))}
-            </select>
-          }
+          path: {selectedPath.replace(/"/g, '').substring(1)}
         </div>
         {!isValidUrl && <div style={{ color: 'red' }}>invalid url</div>}
       </div>
