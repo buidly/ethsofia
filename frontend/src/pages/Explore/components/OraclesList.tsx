@@ -25,7 +25,7 @@ const OraclesListItem = ({ oracle }: { oracle: Oracle }) => {
         <h2 className="text-2xl">{oracle.title}</h2>
         <p className="font-normal">{oracle.description}</p>
         <br></br>
-        <p className="font-normal">walrus id</p>
+        <p className="text-xs font-normal break-all">{oracle.blobId ?? 'Not published yet'}</p>
       </div>
     </div >
   );

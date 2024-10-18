@@ -1,7 +1,11 @@
+import { MyNode } from '../../../utils';
 import { useDnD } from './DnDContext';
 
-export const Sidebar = () => {
+export const Sidebar = ({ currentNodes }: { currentNodes: MyNode[] }) => {
   const [_, setType] = useDnD();
+
+  const hasStartNode = currentNodes.some((node) => node.type === 'start');
+  const hasResultNode = currentNodes.some((node) => node.type === 'result');
 
   const onDragStart = (event: any, nodeType: any) => {
     // @ts-ignore
@@ -14,9 +18,9 @@ export const Sidebar = () => {
       <p className='font-light'>You can drag these nodes to the pane on the left.</p>
       <div className='flex flex-row gap-2'>
         <div
-          className="dndnode py-4 px-10 border-2 border-[#212121] rounded-3xl rounded-l-lg bg-[#fdfdfc]"
+          className={`dndnode py-4 px-10 border-2 border-[#212121] rounded-3xl rounded-l-lg bg-[#fdfdfc] ${hasStartNode ? 'opacity-50' : ''}`}
           onDragStart={(event) => onDragStart({ event }, 'start')}
-          draggable
+          draggable={!hasStartNode}
         >
           Start
         </div>
@@ -28,9 +32,9 @@ export const Sidebar = () => {
           Data source
         </div>
         <div
-          className="dndnode py-4 px-10 border-2 border-[#212121] rounded-3xl rounded-r-lg bg-[#fdfdfc]"
+          className={`dndnode py-4 px-10 border-2 border-[#212121] rounded-3xl rounded-r-lg bg-[#fdfdfc] ${hasResultNode ? 'opacity-50' : ''}`}
           onDragStart={(event) => onDragStart(event, 'result')}
-          draggable
+          draggable={!hasStartNode}
         >
           Result
         </div>

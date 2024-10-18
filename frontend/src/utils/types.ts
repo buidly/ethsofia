@@ -8,4 +8,6 @@ export interface Oracle {
   nodes: MyNode[];
   edges: Edge[];
   isNew?: boolean;
+  blobId?: string;
+  walrusData?: any;
 }

@@ -116,7 +116,7 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
                 </textarea>
               </div>
             </div>
-            <Sidebar />
+            <Sidebar currentNodes={nodes} />
           </div>
         )}
         <div className="dndflow flex-1">
@@ -248,12 +248,18 @@ export const OracleEditorPageContent = () => {
         throw new Error('Error saving oracle');
       }
 
+      const saveBody = {
+        ...oracleData,
+        blobId,
+        walrusData: jsonContent
+      }
+
       if (isNew) {
-        const result = await axios.post(`${API_URL}/oracles`, oracleData);
+        const result = await axios.post(`${API_URL}/oracles`, saveBody);
         console.log('new oracle', result.data);
         navigate(`/oracles/${result.data.id}`);
       } else {
-        const result = await axios.put(`${API_URL}/oracles/${oracleData.id}`, oracleData);
+        const result = await axios.put(`${API_URL}/oracles/${oracleData.id}`, saveBody);
         console.log('update oracle', result.data);
         setOracle(result.data);
       }
@@ -264,16 +270,6 @@ export const OracleEditorPageContent = () => {
       // setIsEditMode(false);
       setLoadingEdit(false);
     }
-    return;
-    // TODO move to server
-
-    // // const response = await axios.put(`${basePublisherUrl}/v1/store`, content, {
-    // //   headers: {
-    // //     // "Content-Type": "text/plain",
-    // //     "Content-Type": "multipart/form-data",
-    // //   }
-    // // });
-
   }
 
   return (
@@ -316,7 +312,7 @@ export const OracleEditorPageContent = () => {
             <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
           </div>
           <div className="flex items-center">
-            walrus info TODO
+            {oracle.blobId ?? <>Not published yet</>}
           </div>
         </div>
       )}
