@@ -1,20 +1,27 @@
 import { memo } from 'react';
 import {
   Handle,
+  NodeProps,
   Position,
   useHandleConnections,
   useNodesData,
+  useReactFlow,
+  type Node,
 } from '@xyflow/react';
-import { isTextNode, type MyNode } from '../../utils';
+import { type MyNode } from '../../utils';
 
-function ResultNodeComponent() {
+function ResultNodeComponent({ id, data }: NodeProps<Node<{ aggregate: string }>>) {
+  const { updateNodeData } = useReactFlow();
+
   const connections = useHandleConnections({
     type: 'target',
   });
   const nodesData = useNodesData<MyNode>(
     connections.map((connection) => connection.source),
   );
-  const textNodes = nodesData.filter(isTextNode);
+  const dataSourceNodes = nodesData.filter((node) => node.type === 'dataSource');
+
+  // TODO: use data sources
 
   return (
     <div
@@ -28,9 +35,15 @@ function ResultNodeComponent() {
     >
       <Handle type="target" position={Position.Left} />
       <div>
-        incoming texts:{' '}
-        {textNodes.map(({ data }, i) => <div key={i}>{(data as any).text}</div>) ||
-          'none'}
+        Result:
+        <select value={data.aggregate} onChange={(e) => updateNodeData(id, { aggregate: e.target.value })}>
+          <option value="min">min</option>
+          <option value="max">max</option>
+          <option value="avg">avg</option>
+          <option value="sum">sum</option>
+        </select>
+        {/* {textNodes.map(({ data }, i) => <div key={i}>{(data as any).text}</div>) ||
+          'none'} */}
       </div>
     </div>
   );

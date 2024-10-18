@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDnD } from './DnDContext';
 
 export const Sidebar = () => {
@@ -13,14 +12,14 @@ export const Sidebar = () => {
   return (
     <aside>
       <div className="description">You can drag these nodes to the pane on the right.</div>
-      <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'input')} draggable>
-        Input Node
+      <div className="dndnode input" onDragStart={(event) => onDragStart({ event }, 'start')} draggable>
+        Start
       </div>
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'default')} draggable>
-        Default Node
+      <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'dataSource')} draggable>
+        Data source
       </div>
-      <div className="dndnode output" onDragStart={(event) => onDragStart(event, 'output')} draggable>
-        Output Node
+      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'result')} draggable>
+        Result
       </div>
     </aside>
   );
