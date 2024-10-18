@@ -80,24 +80,40 @@ export const DnDFlow = ({ oracle, onSave, isEditMode }: { oracle: Oracle, onSave
   return (
     <div>
       <div>
-        project title:
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!isEditMode} />
-      </div>
-      <div>
-        project description:
-        <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} disabled={!isEditMode} />
-      </div>
-      <div>
         <button onClick={() => onSave({ ...oracle, title, description, nodes, edges }, oracle.isNew)}>Save</button>
       </div>
       <div className="flex flex-row-reverse rows-6 gap-6 justify-between ">
         {isEditMode && (
-          <div className="row-span-2 bg-[#d8dfe9] rounded-3xl">
+          <div className="row-span-2 flex flex-col gap-6">
+            <div className='p-6 flex flex-col gap-4 bg-[#cfdeca] rounded-3xl'>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="title" className="text-sm font-normal">Title:</label>
+                <input
+                  name="title"
+                  className="p-4 border-2 border-[#212121] rounded-3xl bg-[#fdfdfc]"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  disabled={!isEditMode}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="description" className="text-sm font-normal">Description:</label>
+                <textarea
+                  className="p-4 border-2 border-[#212121] rounded-3xl bg-[#fdfdfc]"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  disabled={!isEditMode}
+                  rows={4}
+                >
+                </textarea>
+              </div>
+            </div>
             <Sidebar />
           </div>
         )}
         <div className="dndflow flex-1">
-          <div className="reactflow-wrapper w-full h-[600px] bg-[#d8dfe9] border-[#d8dfe9] border-4 rounded-3xl" ref={reactFlowWrapper} >
+          <div className="reactflow-wrapper w-full h-full min-h-[600px] bg-[#d8dfe9] border-[#d8dfe9] border-4 rounded-3xl" ref={reactFlowWrapper} >
             <ReactFlow
               className="w-full h-full"
               nodes={nodes}
@@ -254,11 +270,11 @@ export const OracleEditorPageContent = () => {
   return (
     <>
       <div className="flex flex-row justify-between">
-        <div>
-          <p className="font-light text-sm">walrus id: {oracle.id}</p>
+        <div className="flex flex-col gap-2">
           <h1 className="text-3xl">{oracle.title}</h1>
+          <p className="font-light max-w-xl">{oracle.description} lorem ibsum is a long text that we are going to use to test the layout of this component</p>
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 items-start">
           {isEditMode && (
             <button className="p-4 px-6 border-2 border-[#212121] bg-[#eff0a3] rounded-3xl flex items-center gap-3">
               Save
@@ -280,13 +296,21 @@ export const OracleEditorPageContent = () => {
           </button>
         </div>
       </div>
-      <main>
+      <div className='p-3 flex flex-row gap-4 bg-[#eff0a3] rounded-full'>
+        <div className="bg-[#121212] rounded-full h-14 w-14 flex items-center justify-center">
+          <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
+        </div>
+        <div className="flex items-center">
+          walrus info TODO
+        </div>
+      </div>
+      <div>
         <ReactFlowProvider>
           <DnDProvider>
             <DnDFlow oracle={oracle} onSave={onSave} isEditMode={isEditMode} />
           </DnDProvider>
         </ReactFlowProvider>
-      </main>
+      </div>
     </>
   );
 }
