@@ -24,19 +24,15 @@ function ResultNodeComponent({ id, data }: NodeProps<Node<{ aggregate: string }>
   // TODO: use data sources
 
   return (
-    <div
-      style={{
-        background: '#eee',
-        color: '#222',
-        padding: 10,
-        fontSize: 12,
-        borderRadius: 10,
-      }}
-    >
-      <Handle type="target" position={Position.Left} />
-      <div>
-        Result:
-        <select value={data.aggregate} onChange={(e) => updateNodeData(id, { aggregate: e.target.value })}>
+    <div className='flex border border-[#212121] bg-[#fdfdfc] rounded-3xl rounded-r-lg p-4 text-md'>
+      <Handle type="target" position={Position.Left} className='h-5 w-2 rounded-none  border border-[#212121]' />
+      <div className='flex flex-col'>
+        Aggregate results
+        <select
+          className="p-2 border-2 border-[#212121] rounded-3xl bg-[#fdfdfc]"
+          value={data.aggregate}
+          onChange={(e) => updateNodeData(id, { aggregate: e.target.value })}
+        >
           <option value="min">MIN</option>
           <option value="max">MAX</option>
           <option value="average">AVERAGE</option>
