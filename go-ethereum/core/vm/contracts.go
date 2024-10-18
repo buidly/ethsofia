@@ -1094,6 +1094,14 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 	if err != nil {
 	}
 
+	// Pretty-print the dataFeed struct
+	prettyDataFeed, err := json.MarshalIndent(dataFeed, "", " ")
+	if err != nil {
+		log.Error("Failed to pretty print dataFeed: %v", err)
+	}
+	// Log the fetched source definition
+	log.Error("Fetched source definition from %s: \n%s", url, string(prettyDataFeed))
+		
 	switch dataFeed.AggType {
 	case "average":
 		sum := 0
@@ -1132,13 +1140,16 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 				sum += intValue
 				count++
 			}
+
+			// Log the data feed response with source URL and int value
+			log.Error("Data feed response from %s is %d", sourceURL, intValue)
 		}
 
 		if count > 0 {
 			average := float64(sum) / float64(count)
 			intAverage := int(average)
 			priceStr := fmt.Sprintf("%f", intAverage)
-			log.Info("Price: ", priceStr)
+			log.Error("Computed data feed with aggType=average is %s", priceStr)
 			return []byte(priceStr), nil
 		} else {
 			countStr := fmt.Sprintf("%f", count)
@@ -1176,6 +1187,9 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 			value := gjson.Get(string(jsonData), sourcePath)
 			floatValue := value.Float() // This will give you the float64 value
 
+			// Log the data feed response with source URL and int value
+			log.Error("Data feed response from %s is %d", sourceURL, floatValue)
+
 			if !value.Exists() {
 			} else {
 				if floatValue > current_max {
@@ -1185,13 +1199,11 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 
 			fmt.Printf("Raw value at path '%s' in response from %s: %s\n", sourcePath, sourceURL, value.String())
 		}
-		intMax := int(current_max * 10)
+		intMax := int(current_max)
 		intMaxStr := fmt.Sprintf("%f", intMax)
-		log.Error(intMaxStr)
+		log.Error("Computed data feed with aggType=max is %s", intMaxStr)
 		return []byte(intMaxStr), nil
-
 	}
-
-	log.Error("Am iesit")
+ 
 	return []byte{0}, nil
 }
