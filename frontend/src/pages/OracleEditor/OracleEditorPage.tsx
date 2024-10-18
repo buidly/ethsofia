@@ -1,7 +1,8 @@
-import { addEdge, Background, Controls, Edge, ReactFlow, ReactFlowProvider, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
+import { addEdge, Controls, Edge, ReactFlow, ReactFlowProvider, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
 import { useCallback, useRef } from "react";
-import { MyNode } from "../utils";
-import { DnDProvider, ResultNode, Sidebar, TextNode, UppercaseNode, useDnD } from "./nodes";
+import { MyNode } from "../../utils";
+import { ResultNode, TextNode, UppercaseNode } from "../../components";
+import { DnDProvider, Sidebar, useDnD } from "./components";
 
 
 const nodeTypes = {
@@ -144,3 +145,16 @@ export const OracleFlowEditor = () => (
     </DnDProvider>
   </ReactFlowProvider>
 );
+
+export const OracleEditorPage = () => {
+  return (
+    <>
+      <header>
+        <h1>Oracle Flow Editor</h1>
+      </header>
+      <main>
+        <OracleFlowEditor />
+      </main>
+    </>
+  );
+}
