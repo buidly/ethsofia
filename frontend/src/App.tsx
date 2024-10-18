@@ -2,13 +2,26 @@ import "react";
 
 import './App.css'
 import '@xyflow/react/dist/style.css';
-import { OracleEditorPage } from "./pages";
+import { HomePage, OracleEditorPage } from "./pages";
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "/oracles/:id",
+    element: <OracleEditorPage />,
+  },
+]);
 
 function App() {
   return (
-    <>
-      <OracleEditorPage />
-    </>
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
   )
 }
 

@@ -4,6 +4,7 @@ import * as utils from "../../utils";
 import { DataSourceNode, ResultNode, StartNode } from "../../components";
 import { DnDProvider, Sidebar, useDnD } from "./components";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 
 const nodeTypes = {
@@ -157,10 +158,12 @@ export const OracleFlowEditor = () => (
 );
 
 export const OracleEditorPage = () => {
+  const { id } = useParams<{ id: string }>();
+
   return (
     <>
       <header>
-        <h1>Oracle Flow Editor</h1>
+        <h1>Oracle Flow Editor {id}</h1>
       </header>
       <main>
         <OracleFlowEditor />
