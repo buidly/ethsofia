@@ -4,11 +4,15 @@ import { OracleCaller } from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const contractAddress = "0xb6dCF8e86eb470ebFDf80ab4b2D06AA17DA7860B";
+  const contractAddress = "0xF8cE6c779Ffbc0f4a652DE3a97EF4B34Acc69186";
 
   const oracleCaller = await ethers.getContractAt("OracleCaller", contractAddress) as OracleCaller;
 
-  const inputData = ethers.toUtf8Bytes("https://api.multiversx.com/stats");
+  // BTC/USD price feed
+  // const inputData = ethers.toUtf8Bytes("https://aggregator-devnet.walrus.space/v1/8jBYLvsl99Avd0qMLqFl8acRfb7aJ_ExeKTrR1vVRUE");
+
+  // Max weather price feed
+  const inputData = ethers.toUtf8Bytes("https://aggregator-devnet.walrus.space/v1/s_6vaKYsdclMRE6MV1rS3cWhA2NouVoQWlwVvY5OzzU");
 
   const result = await oracleCaller.callAPI(inputData);
 
