@@ -3,25 +3,21 @@ import {
   Handle,
   NodeProps,
   Position,
-  useHandleConnections,
-  useNodesData,
   useReactFlow,
   type Node,
 } from '@xyflow/react';
-import { type MyNode } from '../../utils';
 
 function ResultNodeComponent({ id, data }: NodeProps<Node<{ aggregate: string }>>) {
   const { updateNodeData } = useReactFlow();
 
-  const connections = useHandleConnections({
-    type: 'target',
-  });
-  const nodesData = useNodesData<MyNode>(
-    connections.map((connection) => connection.source),
-  );
-  const dataSourceNodes = nodesData.filter((node) => node.type === 'dataSource');
+  // const connections = useHandleConnections({
+  //   type: 'target',
+  // });
+  // const nodesData = useNodesData<MyNode>(
+  //   connections.map((connection) => connection.source),
+  // );
+  // const dataSourceNodes = nodesData.filter((node) => node.type === 'dataSource');
 
-  // TODO: use data sources
 
   return (
     <div className='flex border border-[#212121] bg-[#fdfdfc] rounded-3xl rounded-r-lg p-4 text-md'>

@@ -224,16 +224,39 @@ export const OracleEditorPageContent = () => {
       const childResult = (flowRef.current as any).fetchData();
       const { isNew, ...oracleData } = childResult;
 
+      const dataSourceNodes = oracleData.nodes.filter((node: any) => node.type === 'dataSource');
+      const resultNodes = oracleData.nodes.filter((node: any) => node.type === 'result');
+      const resultNode = resultNodes[0];
+      // TODO add chesks
+
+      const jsonContent = {
+        "dataFeedName": oracleData.title,
+        "source": dataSourceNodes.map((node: any) => ({
+          url: node.data.url,
+          path: node.data.path
+        })),
+        "aggType": resultNode.data.aggregate
+      }
+      const content = JSON.stringify(jsonContent, null, 2);
+
+      const basePublisherUrl = 'https://walrus-testnet-publisher.nodeinfra.com';
+      const numEpochs = 10;
+
+      const response = await axios.put(`${basePublisherUrl}/v1/store?epochs=${numEpochs}`, content);
+      const blobId = response.data.alreadyCertified?.blobId ?? response.data.newlyCreated?.blobObject?.id;
+      if (!blobId) {
+        throw new Error('Error saving oracle');
+      }
+
       if (isNew) {
         const result = await axios.post(`${API_URL}/oracles`, oracleData);
         console.log('new oracle', result.data);
         navigate(`/oracles/${result.data.id}`);
-        return;
+      } else {
+        const result = await axios.put(`${API_URL}/oracles/${oracleData.id}`, oracleData);
+        console.log('update oracle', result.data);
+        setOracle(result.data);
       }
-
-      const result = await axios.put(`${API_URL}/oracles/${oracleData.id}`, oracleData);
-      console.log('update oracle', result.data);
-      setOracle(result.data);
     } catch (error) {
       console.error("Error saving oracle", error);
       setErrorEdit('Error saving oracle');
@@ -243,24 +266,7 @@ export const OracleEditorPageContent = () => {
     }
     return;
     // TODO move to server
-    // const dataSourceNodes = data.nodes.filter((node: utils.MyNode) => node.type === 'dataSource') as utils.DataSourceNode[];
-    // const resultNodes = data.nodes.filter((node: utils.MyNode) => node.type === 'result');
-    // const resultNode = resultNodes[0] as utils.ResultNode;
-    // // TODO add chesks
 
-    // const jsonContent = {
-    //   "dataFeedName": title,
-    //   "source": dataSourceNodes.map((node) => ({
-    //     url: node.data.url,
-    //     path: node.data.path
-    //   })),
-    //   "aggType": resultNode.data.aggregate
-    // }
-    // const content = JSON.stringify(jsonContent, null, 2);
-    // // const content = "A";
-
-    // const basePublisherUrl = 'https://publisher.walrus-testnet.walrus.space';
-    // const numEpochs = 1;
     // // const response = await axios.put(`${basePublisherUrl}/v1/store`, content, {
     // //   headers: {
     // //     // "Content-Type": "text/plain",
@@ -268,12 +274,6 @@ export const OracleEditorPageContent = () => {
     // //   }
     // // });
 
-    // const response = fetch(`${basePublisherUrl}/v1/store?epochs=${numEpochs}`, {
-    //   method: "PUT",
-    //   body: content,
-    // })
-
-    // console.log('walrus response', response);
   }
 
   return (
