@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.27;
 
-import "./OracleCallerAbstract.sol";
+import "./abstracts/OracleCallerAbstract.sol";
 
 contract GenericCaller is OracleCallerAbstract {
 

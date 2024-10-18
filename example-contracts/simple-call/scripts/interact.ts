@@ -4,7 +4,7 @@ import { GenericCaller } from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const contractAddress = "0xF9B1158070BB934D0eFbad99D9FfaeB1436b01Fa";
+  const contractAddress = "0x962D78882e4115cd95d130E2F84f28a89f2A1Fb5";
 
   const genericCaller = await ethers.getContractAt("GenericCaller", contractAddress) as GenericCaller;
 
