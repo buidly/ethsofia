@@ -161,6 +161,8 @@ export const OracleEditorPageContent = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [errorEdit, setErrorEdit] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOracle = async () => {
@@ -217,6 +219,8 @@ export const OracleEditorPageContent = () => {
 
   const onSave = async () => {
     try {
+      setLoadingEdit(true);
+
       const childResult = (flowRef.current as any).fetchData();
       const { isNew, ...oracleData } = childResult;
 
@@ -232,6 +236,10 @@ export const OracleEditorPageContent = () => {
       setOracle(result.data);
     } catch (error) {
       console.error("Error saving oracle", error);
+      setErrorEdit('Error saving oracle');
+    } finally {
+      // setIsEditMode(false);
+      setLoadingEdit(false);
     }
     return;
     // TODO move to server
@@ -277,10 +285,15 @@ export const OracleEditorPageContent = () => {
         </div>
         <div className="flex flex-row gap-2 items-start">
           {isEditMode && (
-            <button className="p-4 px-6 border-2 border-[#212121] bg-[#eff0a3] rounded-3xl flex items-center gap-3" onClick={onSave}>
-              Save
-              <FontAwesomeIcon icon={faSave} className="h-5 w-5" />
-            </button>
+            <div>
+              <button className="p-4 px-6 border-2 border-[#212121] bg-[#eff0a3] rounded-3xl flex items-center gap-3" onClick={onSave}>
+                Save
+                {loadingEdit ? <FontAwesomeIcon icon={faCircleNotch} className="animate-spin h-5 w-5" /> : <FontAwesomeIcon icon={faSave} className="h-5 w-5" />}
+              </button>
+              {errorEdit && (
+                <p className="mt-2 text-red-400 font-normal text-sm text-center">{errorEdit}</p>
+              )}
+            </div>
           )}
           <button className="p-4 px-6 border-2 border-[#212121] bg-[#fdfdfc] rounded-3xl flex items-center gap-3" onClick={() => setIsEditMode(!isEditMode)}>
             {isEditMode ? (
@@ -297,14 +310,16 @@ export const OracleEditorPageContent = () => {
           </button>
         </div>
       </div>
-      <div className='p-3 flex flex-row gap-4 bg-[#eff0a3] rounded-full'>
-        <div className="bg-[#121212] rounded-full h-14 w-14 flex items-center justify-center">
-          <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
+      {!isEditMode && (
+        <div className='p-3 flex flex-row gap-4 bg-[#eff0a3] rounded-full'>
+          <div className="bg-[#121212] rounded-full h-14 w-14 flex items-center justify-center">
+            <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
+          </div>
+          <div className="flex items-center">
+            walrus info TODO
+          </div>
         </div>
-        <div className="flex items-center">
-          walrus info TODO
-        </div>
-      </div>
+      )}
       <div>
         <ReactFlowProvider>
           <DnDProvider>
