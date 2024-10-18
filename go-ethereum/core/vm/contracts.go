@@ -19,11 +19,11 @@ package vm
 import (
 	"crypto/sha256"
 	"encoding/binary"
-	"errors"
-	"math/big"
-    "net/http"
-	"fmt"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"math/big"
+	"net/http"
 
 	"github.com/tidwall/gjson"
 
@@ -33,8 +33,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto/blake2b"
 	"github.com/ethereum/go-ethereum/crypto/bls12381"
 	"github.com/ethereum/go-ethereum/crypto/bn256"
+	 log "github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/log"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -85,15 +85,15 @@ var PrecompiledContractsIstanbul = map[common.Address]PrecompiledContract{
 // PrecompiledContractsBerlin contains the default set of pre-compiled Ethereum
 // contracts used in the Berlin release.
 var PrecompiledContractsBerlin = map[common.Address]PrecompiledContract{
-	common.BytesToAddress([]byte{1}): &ecrecover{},
-	common.BytesToAddress([]byte{2}): &sha256hash{},
-	common.BytesToAddress([]byte{3}): &ripemd160hash{},
-	common.BytesToAddress([]byte{4}): &dataCopy{},
-	common.BytesToAddress([]byte{5}): &bigModExp{eip2565: true},
-	common.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
-	common.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
-	common.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
-	common.BytesToAddress([]byte{9}): &blake2F{},
+	common.BytesToAddress([]byte{1}):                                  &ecrecover{},
+	common.BytesToAddress([]byte{2}):                                  &sha256hash{},
+	common.BytesToAddress([]byte{3}):                                  &ripemd160hash{},
+	common.BytesToAddress([]byte{4}):                                  &dataCopy{},
+	common.BytesToAddress([]byte{5}):                                  &bigModExp{eip2565: true},
+	common.BytesToAddress([]byte{6}):                                  &bn256AddIstanbul{},
+	common.BytesToAddress([]byte{7}):                                  &bn256ScalarMulIstanbul{},
+	common.BytesToAddress([]byte{8}):                                  &bn256PairingIstanbul{},
+	common.BytesToAddress([]byte{9}):                                  &blake2F{},
 	common.HexToAddress("0x9999999999999999999999999999999999999999"): &ResolveOracleContract{},
 }
 
@@ -1059,7 +1059,7 @@ func (c *bls12381MapG2) Run(input []byte) ([]byte, error) {
 type ResolveOracleContract struct{}
 
 func (c *ResolveOracleContract) RequiredGas(input []byte) uint64 {
-    return 5000 // Set appropriate gas cost
+	return 5000 // Set appropriate gas cost
 }
 
 type DataFeed struct {
@@ -1077,6 +1077,8 @@ type Source struct {
 func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 	url := string(input)
 
+	log.Error("ResolveOracle call detected for " + url)
+
 	// Make the HTTP GET request to fetch the JSON data
 	resp, err := http.Get(url)
 	if err != nil {
@@ -1093,103 +1095,116 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 	if err != nil {
 	}
 
+	// Pretty-print the dataFeed struct
+	prettyDataFeed, err := json.MarshalIndent(dataFeed, "", " ")
+	if err != nil {
+		log.ErrorTest(fmt.Sprintf("Failed to pretty print dataFeed: %v", err))
+	}
+	// Log the fetched source definition
+	log.ErrorTest(fmt.Sprintf("Fetched source definition from %s: \n%s", url, string(prettyDataFeed)))
+
 	switch dataFeed.AggType {
-		case "average":
-			sum := 0
-			count := 0
+	case "average":
+		sum := 0
+		count := 0
 
-			// Loop over the sources, extract URL and path, and make HTTP GET requests
-			for _, source := range dataFeed.Sources {
-				sourceURL := source.URL
-				sourcePath := source.Path
+		// Loop over the sources, extract URL and path, and make HTTP GET requests
+		for _, source := range dataFeed.Sources {
+			sourceURL := source.URL
+			sourcePath := source.Path
 
-				// Make the request to the source URL
-				resp, err := http.Get(sourceURL)
-				if err != nil {
-					continue
-				}
-				defer resp.Body.Close() // Defer close for the inner response
+			// Make the request to the source URL
+			resp, err := http.Get(sourceURL)
+			if err != nil {
+				continue
+			}
+			defer resp.Body.Close() // Defer close for the inner response
 
-				// Read the response body
-				var result map[string]interface{}
-				err = json.NewDecoder(resp.Body).Decode(&result)
-				if err != nil {
-				}
-
-				// Convert the result back to JSON for GJSON to parse
-				jsonData, err := json.Marshal(result)
-				if err != nil {
-				}
-
-				// Use GJSON to navigate the JSON using the path
-				value := gjson.Get(string(jsonData), sourcePath)
-				floatValue := value.Float() // This will give you the float64 value
-				intValue := int(floatValue)
-
-				if !value.Exists() {
-				} else {
-					sum += intValue
-					count++
-				}
+			// Read the response body
+			var result map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&result)
+			if err != nil {
 			}
 
-			if count > 0 {
-				average := float64(sum) / float64(count)
-				intAverage := int(average)
-				priceStr := fmt.Sprintf("%f", intAverage)
-				log.Info("Price: ", priceStr)
-				return []byte(priceStr), nil
+			// Convert the result back to JSON for GJSON to parse
+			jsonData, err := json.Marshal(result)
+			if err != nil {
+			}
+
+			// Use GJSON to navigate the JSON using the path
+			value := gjson.Get(string(jsonData), sourcePath)
+			floatValue := value.Float() // This will give you the float64 value
+			intValue := int(floatValue)
+
+			if !value.Exists() {
 			} else {
-				countStr := fmt.Sprintf("%f", count)
-				log.Info("Division by zero: ", countStr)
-				return []byte(countStr), nil
+				sum += intValue
+				count++
 			}
 
-		case "max":
-			current_max := 0.0
-	
-			// Loop over the sources, extract URL and path, and make HTTP GET requests
-			for _, source := range dataFeed.Sources {
-				sourceURL := source.URL
-				sourcePath := source.Path
-	
-				// Make the request to the source URL
-				resp, err := http.Get(sourceURL)
-				if err != nil {
-					continue
-				}
-				defer resp.Body.Close() // Defer close for the inner response
-	
-				// Read the response body
-				var result map[string]interface{}
-				err = json.NewDecoder(resp.Body).Decode(&result)
-				if err != nil {
-				}
-	
-				// Convert the result back to JSON for GJSON to parse
-				jsonData, err := json.Marshal(result)
-				if err != nil {
-				}
-	
-				// Use GJSON to navigate the JSON using the path
-				value := gjson.Get(string(jsonData), sourcePath)
-				floatValue := value.Float() // This will give you the float64 value
-	
-				if !value.Exists() {
-				} else {
-					if floatValue > current_max {
-						current_max = floatValue
-					}
-				}
-				
-				fmt.Printf("Raw value at path '%s' in response from %s: %s\n", sourcePath, sourceURL, value.String())
-			}
-			intMax := int(current_max * 10)
-			intMaxStr := fmt.Sprintf("%f", intMax)
-			return []byte(intMaxStr), nil	
-
+			// Log the data feed response with source URL and int value
+			log.Info(fmt.Sprintf("Data feed response from %s is %d", sourceURL, intValue))
 		}
 
-		return []byte{0}, nil
-}
+		if count > 0 {
+			average := float64(sum) / float64(count)
+			intAverage := int(average)
+			priceStr := fmt.Sprintf("%f", intAverage)
+			log.ErrorTest(fmt.Sprintf("Computed data feed with aggType=average is %d", intAverage))
+			return []byte(priceStr), nil
+		} else {
+			countStr := fmt.Sprintf("%f", count)
+			log.Info(fmt.Sprintf("Division by zero: ", countStr))
+			return []byte(countStr), nil
+		}
 
+	case "max":
+		current_max := 0.0
+
+		// Loop over the sources, extract URL and path, and make HTTP GET requests
+		for _, source := range dataFeed.Sources {
+			sourceURL := source.URL
+			sourcePath := source.Path
+
+			// Make the request to the source URL
+			resp, err := http.Get(sourceURL)
+			if err != nil {
+				continue
+			}
+			defer resp.Body.Close() // Defer close for the inner response
+
+			// Read the response body
+			var result map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&result)
+			if err != nil {
+			}
+
+			// Convert the result back to JSON for GJSON to parse
+			jsonData, err := json.Marshal(result)
+			if err != nil {
+			}
+
+			// Use GJSON to navigate the JSON using the path
+			value := gjson.Get(string(jsonData), sourcePath)
+			floatValue := value.Float() // This will give you the float64 value
+			intValue := int(floatValue)
+
+			// Log the data feed response with source URL and int value
+			log.ErrorTest(fmt.Sprintf("Data feed response from %s is %d", sourceURL, intValue))
+
+			if !value.Exists() {
+			} else {
+				if floatValue > current_max {
+					current_max = floatValue
+				}
+			}
+
+		}
+		intMax := int(current_max)
+		intMaxStr := fmt.Sprintf("%f", intMax)
+		log.ErrorTest(fmt.Sprintf("Computed data feed with aggType=max is %d", intMax))
+		return []byte(intMaxStr), nil
+	}
+ 
+	return []byte{0}, nil
+}

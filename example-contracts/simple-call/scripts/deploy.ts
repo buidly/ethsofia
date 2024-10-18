@@ -5,9 +5,9 @@ async function main() {
 
   console.log("Deploying contract with account:", deployer.address);
 
-  const OracleCaller = await ethers.getContractFactory("OracleCaller");
-  const oracleCaller = await OracleCaller.deploy();
-  const address = await oracleCaller.getAddress();
+  const GenericCaller = await ethers.getContractFactory("GenericCaller");
+  const genericCaller = await GenericCaller.deploy();
+  const address = await genericCaller.getAddress();
 
   console.log("Contract deployed at address:", address);
 }

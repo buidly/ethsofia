@@ -25,6 +25,7 @@ ExecStart=/home/ubuntu/go-ethereum/go-ethereum/build/bin/geth \
           --bootnodes "{{ bootnode_enode }}" \
           --networkid {{ networkid }} \
           --mine \
-          --miner.etherbase "{{ etherbase }}"
+          --miner.etherbase "{{ etherbase }}" \
+          --verbosity 1
 [Install]
 WantedBy=multi-user.target
