@@ -11,6 +11,11 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545",
       chainId: 99001,
       accounts: [process.env.PRIVATE_KEY as string],
+    },
+    SnapData:{
+      url: "http://34.91.164.215:8545",
+      chainId: 99001,
+      accounts: [process.env.PRIVATE_KEY as string],
     }
   }
 };
