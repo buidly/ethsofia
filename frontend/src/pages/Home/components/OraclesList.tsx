@@ -1,10 +1,14 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_URL } from "../../../utils";
+import { Oracle } from "../../../utils/types";
 
-const OraclesListItem = ({ oracle }: any) => {
+const OraclesListItem = ({ oracle }: { oracle: Oracle }) => {
   return (
     <Link to={`/oracles/${oracle.id}`}>
       <li>
-        <h2>{oracle.name}</h2>
+        <h2>{oracle.title}</h2>
         <p>{oracle.description}</p>
       </li>
     </Link>
@@ -12,27 +16,44 @@ const OraclesListItem = ({ oracle }: any) => {
 }
 
 export const OraclesList = () => {
-  const oracles = [{
-    id: "1",
-    name: "Oracle 1",
-    description: "This is the first oracle",
-    walrusId: "1",
-    data: {},
-  },
-  {
-    id: "2",
-    name: "Oracle 2",
-    description: "This is the first oracle",
-    walrusId: "2",
-    data: {},
-  },
-  {
-    id: "3",
-    name: "Oracle 3",
-    description: "This is the first oracle",
-    walrusId: "3",
-    data: {},
-  }]
+  const [oracles, setOracles] = useState<Oracle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOracles = async () => {
+      try {
+        setLoading(true);
+
+        const response = await axios.get(`${API_URL}/oracles`);
+        setOracles(response.data);
+      } catch (error) {
+        console.error("Error fetching oracles", error);
+        setError('Error fetching oracles');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchOracles();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
+
+  if (!oracles.length) {
+    return (
+      <div>
+        <h1>Oracles List</h1>
+        <p>No oracles found</p>
+        <Link to="/oracles/new">Create a new oracle</Link>
+      </div>
+    )
+  }
 
   return (
     <div>
