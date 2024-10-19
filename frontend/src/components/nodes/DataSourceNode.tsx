@@ -11,6 +11,8 @@ import { JsonPathPicker } from "react-json-path-picker";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
+const cache = new Map<string, any>();
+
 function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, path: string }>>) {
   const { updateNodeData } = useReactFlow();
 
@@ -30,10 +32,23 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
       }
 
       try {
-        const result = await axios.get(data.url);
-        setResponseExample(result.data);
+        let responseData = cache.get(data.url as string);
+        if (!responseData) {
+          const result = await axios.get(data.url);
+          responseData = result.data;
+
+          if (cache.size > 25) {
+            cache.clear();
+            console.log('Cache cleared');
+          }
+          cache.set(data.url, responseData);
+          console.log('Fetched data');
+        } else {
+          console.log('Using cached data');
+        }
+
+        setResponseExample(responseData);
         setSelectedPath('');
-        // TODO cache
       } catch (error) {
         console.error(error);
       }
