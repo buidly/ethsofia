@@ -328,7 +328,7 @@ export const OracleEditorPageContent = () => {
 
       const jsonContent = {
         "dataFeedName": oracleData.title,
-        "source": dataSourceNodes.map((node: any) => ({
+        "sources": dataSourceNodes.map((node: any) => ({
           url: node.data.url,
           path: node.data.path.replace(/"/g, '').substring(1)
         })),
