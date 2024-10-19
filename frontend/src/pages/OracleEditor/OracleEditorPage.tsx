@@ -3,7 +3,7 @@ import { useCallback, useEffect, useImperativeHandle, useRef, useState } from "r
 import { DataSourceNode, NavBar, ResultNode, StartNode } from "../../components";
 import { DnDProvider, Sidebar, useDnD } from "./components";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { Oracle } from "../../utils/types";
 import { API_URL, BASE_PUBLISHER_URL } from "../../utils";
@@ -96,7 +96,9 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
               <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
             </div>
             <div className="flex items-center max-w-sm break-all">
-              {oracle.blobId ?? <>Not published yet</>}
+              {oracle.blobId
+                ? <Link to={`https://aggregator.walrus-testnet.walrus.space/v1/${oracle.blobId}`} target="_blank" className="hover:underline">{oracle.blobId}</Link>
+                : <>Not published yet</>}
             </div>
           </div>
           {isEditMode && (
@@ -283,7 +285,7 @@ export const OracleEditorPageContent = () => {
       setSaveLogs(saveLogs);
 
       const response = await axios.put(`${BASE_PUBLISHER_URL}/v1/store?epochs=${numEpochs}`, content);
-      const blobId = response.data.alreadyCertified?.blobId ?? response.data.newlyCreated?.blobObject?.id;
+      const blobId = response.data.alreadyCertified?.blobId ?? response.data.newlyCreated?.blobObject?.blobId;
       if (!blobId) {
         throw new Error('Error saving data to Walrus');
       }
