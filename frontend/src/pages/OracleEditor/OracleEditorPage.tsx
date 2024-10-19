@@ -13,6 +13,31 @@ import React from "react";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import * as prismStyles from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+const CopyButton = ({ className, copyText }: { className: string, copyText: string }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  useEffect(() => {
+    if (isCopied) {
+      const id = setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+      return () => clearTimeout(id);
+    }
+  }, [isCopied]);
+
+
+  const copyContractCode = () => {
+    setIsCopied(true);
+    navigator.clipboard.writeText(copyText);
+  }
+
+  return (
+    <button className={`h-5 w-5 opacity-50 absolute ${className}`} onClick={copyContractCode}>
+      {isCopied ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faCopy} />}
+    </button>
+  )
+};
+
 const nodeTypes = {
   start: StartNode,
   dataSource: DataSourceNode,
@@ -38,22 +63,12 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
   const [edges, setEdges, onEdgesChange] = useEdgesState(oracle.edges);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
-  const [isCopied, setIsCopied] = useState(false);
 
   useImperativeHandle(ref, () => ({
     fetchData() {
       return fetchData()
     }
   }));
-
-  useEffect(() => {
-    if (isCopied) {
-      const id = setTimeout(() => {
-        setIsCopied(false);
-      }, 2000);
-      return () => clearTimeout(id);
-    }
-  }, [isCopied]);
 
   function fetchData() {
     return { ...oracle, title, description, nodes, edges };
@@ -111,23 +126,21 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
       }
   }`;
 
-  const copyContractCode = () => {
-    setIsCopied(true);
-    navigator.clipboard.writeText(oracleCode);
-  }
-
   return (
     <div>
       <div className="flex flex-row-reverse rows-6 gap-6 justify-between ">
         <div className="flex flex-col gap-6 max-w-lg w-full">
-          <div className='p-3 flex flex-row gap-4 bg-[#eff0a3] rounded-full items-center'>
+          <div className='p-3 flex flex-row gap-4 bg-[#eff0a3] rounded-full items-center relative'>
             <div className="bg-[#121212] rounded-full h-14 w-14 flex items-center justify-center">
               <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
             </div>
             <div className="flex items-center max-w-sm break-all">
-              {oracle.blobId
-                ? <Link to={`https://aggregator.walrus-testnet.walrus.space/v1/${oracle.blobId}`} target="_blank" className="hover:underline">{oracle.blobId}</Link>
-                : <>Not published yet</>}
+              {oracle.blobId ? (
+                <div className="">
+                  <Link to={`https://aggregator.walrus-testnet.walrus.space/v1/${oracle.blobId}`} target="_blank" className="hover:underline">{oracle.blobId}</Link>
+                  <CopyButton copyText={`https://aggregator.walrus-testnet.walrus.space/v1/${oracle.blobId}`} className="right-6 top-7" />
+                </div>
+              ) : (<>Not published yet</>)}
             </div>
           </div>
           {isEditMode && (
@@ -164,9 +177,7 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
               <h2 className="text-xl">Code snippet using this SNAP</h2>
               <p className="font-normal">Lorem ipsum is a long text that we are going to use to test the layout of this component</p>
               <div className="relative">
-                <button className="h-5 w-5 text-white opacity-50 absolute right-6 top-6" onClick={copyContractCode}>
-                  {isCopied ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faCopy} />}
-                </button>
+                <CopyButton copyText={oracleCode} className="right-6 top-6 text-white" />
                 <SyntaxHighlighter
                   language="solidity"
                   style={prismStyles.atomDark}
