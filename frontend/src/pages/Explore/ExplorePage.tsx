@@ -59,7 +59,7 @@ export const ExplorePage = () => {
     <>
       <NavBar />
       <div className="container m-auto p-6 flex flex-col gap-6">
-        <h1 className="text-3xl my-12">Hi _name_, lorem ibsum is a dummy text</h1>
+        <h1 className="text-3xl my-12">Howdy! Ready to dive into your oracle data and make some magic happen?</h1>
         {/* <button onClick={handleButtonClick}>login</button> */}
         <OraclesList />
       </div>

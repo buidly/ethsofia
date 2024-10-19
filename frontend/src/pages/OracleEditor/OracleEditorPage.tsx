@@ -175,7 +175,6 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
           {!isEditMode && (
             <div className='p-6 flex flex-col gap-4 bg-[#cfdeca] rounded-3xl flex-1'>
               <h2 className="text-xl">Code snippet using this SNAP</h2>
-              <p className="font-normal">Lorem ipsum is a long text that we are going to use to test the layout of this component</p>
               <div className="relative">
                 <CopyButton copyText={oracleCode} className="right-6 top-6 text-white" />
                 <SyntaxHighlighter
@@ -384,7 +383,6 @@ export const OracleEditorPageContent = () => {
       <div className="flex flex-row justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl">{oracle.title}</h1>
-          <p className="font-light max-w-xl">{oracle.description} lorem ibsum is a long text that we are going to use to test the layout of this component</p>
         </div>
         <div className="flex flex-row gap-2 items-start">
           {isEditMode && (
