@@ -154,6 +154,7 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
               panOnDrag={isEditMode}
               elementsSelectable={isEditMode}
               fitView
+              maxZoom={1}
             >
               <Background />
               <Controls />
