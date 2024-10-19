@@ -12,13 +12,13 @@ const OraclesListItem = ({ oracle }: { oracle: Oracle }) => {
     "#d8dfe9",
     "#cfdeca"
   ];
-  const idSum = oracle.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const idSum = oracle._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const colorIndex = idSum % itemColors.length;
   const color = itemColors[colorIndex];
 
   return (
     <div className="p-10  rounded-3xl flex flex-row-reverse gap-6 justify-between" style={{ backgroundColor: color }}>
-      <Link to={`/oracles/${oracle.id}`}>
+      <Link to={`/oracles/${oracle._id}`}>
         <FontAwesomeIcon icon={faArrowUpLong} className="h-6 w-6 rotate-45" />
       </Link>
       <div className="flex flex-col gap-4">
@@ -31,7 +31,7 @@ const OraclesListItem = ({ oracle }: { oracle: Oracle }) => {
   );
 }
 
-export const OraclesList = () => {
+export const OraclesList = ({ isHomePage }: { isHomePage?: boolean }) => {
   const [oracles, setOracles] = useState<Oracle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +43,10 @@ export const OraclesList = () => {
 
         const response = await axios.get(`${API_URL}/oracles`);
         setOracles(response.data);
+
+        if (isHomePage) {
+          setOracles(response.data.slice(0, 3))
+        }
       } catch (error) {
         console.error("Error fetching oracles", error);
         setError('Error fetching oracles');
@@ -83,17 +87,19 @@ export const OraclesList = () => {
   return (
     <div className="grid grid-cols-3 gap-6">
       {oracles.map(oracle => (
-        <OraclesListItem oracle={oracle} key={oracle.id} />
+        <OraclesListItem oracle={oracle} key={oracle._id} />
       ))}
-      <div className="p-10  rounded-3xl flex flex-row-reverse gap-6 justify-between bg-[#fdfdfc]">
-        <Link to={`/oracles/new`}>
-          <FontAwesomeIcon icon={faPlus} className="h-6 w-6" />
-        </Link>
-        <div className="flex flex-col gap-4">
-          <h2 className="text-2xl">Create new oracle</h2>
-          <p className="font-normal">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        </div>
-      </div >
+      {!isHomePage && (
+        <div className="p-10  rounded-3xl flex flex-row-reverse gap-6 justify-between bg-[#fdfdfc]">
+          <Link to={`/oracles/new`}>
+            <FontAwesomeIcon icon={faPlus} className="h-6 w-6" />
+          </Link>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-2xl">Create new oracle</h2>
+            <p className="font-normal">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          </div>
+        </div >
+      )}
     </div >
   );
 };

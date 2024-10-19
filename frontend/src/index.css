@@ -8,3 +8,28 @@
   font-weight: bold;
   font-style: normal;
 }
+
+.json-key {
+  color: #121212 !important;
+  opacity: 1 !important;
+}
+
+.json-literal {
+  color: #121212;
+  opacity: 0.5;
+}
+
+.json-picked_tree {
+  background: #fdfdfc !important;
+}
+
+.json-pick_path {
+  color: transparent;
+}
+
+.json-pick_path:hover,
+.json-picked {
+  color: #eff0a3;
+  border: 4px solid black;
+  opacity: 1 !important;
+}

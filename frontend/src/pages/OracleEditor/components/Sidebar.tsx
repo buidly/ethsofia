@@ -14,7 +14,7 @@ export const Sidebar = ({ currentNodes }: { currentNodes: MyNode[] }) => {
   };
 
   return (
-    <div className='p-6 flex flex-col gap-4 bg-[#d8dfe9] rounded-3xl'>
+    <div className='p-6 flex flex-col gap-4 bg-[#d8dfe9] rounded-3xl flex-1'>
       <p className='font-light'>You can drag these nodes to the pane on the left.</p>
       <div className='flex flex-row gap-2'>
         <div
