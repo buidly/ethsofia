@@ -243,12 +243,10 @@ export const OracleEditorPageContent = () => {
     const saveLogs: [string, string][] = [['info', 'Starting save process...']];
     setSaveLogs(saveLogs);
 
+    saveLogs.push(['info', 'Checking data flow...']);
+    setSaveLogs(saveLogs);
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      saveLogs.push(['info', 'Checking data flow...']);
-      setSaveLogs(saveLogs);
-
       const childResult = (flowRef.current as any).fetchData();
       const { isNew, ...oracleData } = childResult;
 

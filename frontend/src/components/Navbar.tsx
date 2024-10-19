@@ -11,6 +11,7 @@ export const NavBar = () => {
           <div className="flex items-center gap-6">
             <Link to="/explore">Explore</Link>
             <Link to="#">About</Link>
+            <Link to="#">Docs</Link>
           </div>
           <div className="flex items-center justify-end w-48">
             <img src="https://avatar.iran.liara.run/public/17" className="border-2 border-[#212121] rounded-full w-12 h-12 object-cover"></img>
