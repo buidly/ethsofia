@@ -8,8 +8,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { Oracle } from "../../utils/types";
 import { API_URL, BASE_PUBLISHER_URL } from "../../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch, faClose, faPencil, faSadTear, faSave, faTerminal } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCircleNotch, faClose, faCopy, faPencil, faSadTear, faSave, faTerminal } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import * as prismStyles from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const nodeTypes = {
   start: StartNode,
@@ -36,12 +38,22 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
   const [edges, setEdges, onEdgesChange] = useEdgesState(oracle.edges);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
+  const [isCopied, setIsCopied] = useState(false);
 
   useImperativeHandle(ref, () => ({
     fetchData() {
       return fetchData()
     }
   }));
+
+  useEffect(() => {
+    if (isCopied) {
+      const id = setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+      return () => clearTimeout(id);
+    }
+  }, [isCopied]);
 
   function fetchData() {
     return { ...oracle, title, description, nodes, edges };
@@ -86,6 +98,23 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
     },
     [screenToFlowPosition, type],
   );
+
+  const oracleCode = `// SPDX-License-Identifier: UNLICENSED
+  pragma solidity ^0.8.27;
+  
+  import "./abstracts/OracleCallerAbstract.sol";
+  
+  contract ${oracle.title.split('').filter(c => c !== " ").join('')} is OracleCallerAbstract {
+      function resolveSnap() public view returns (uint64 output) {
+          uint64 result = _resolveOracle("https://aggregator.walrus-testnet.walrus.space/v1/${oracle.blobId}");
+          return result;
+      }
+  }`;
+
+  const copyContractCode = () => {
+    setIsCopied(true);
+    navigator.clipboard.writeText(oracleCode);
+  }
 
   return (
     <div>
@@ -132,7 +161,24 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
           )}
           {!isEditMode && (
             <div className='p-6 flex flex-col gap-4 bg-[#cfdeca] rounded-3xl flex-1'>
-              todo code snippet
+              <h2 className="text-xl">Code snippet using this SNAP</h2>
+              <p className="font-normal">Lorem ipsum is a long text that we are going to use to test the layout of this component</p>
+              <div className="relative">
+                <button className="h-5 w-5 text-white opacity-50 absolute right-6 top-6" onClick={copyContractCode}>
+                  {isCopied ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faCopy} />}
+                </button>
+                <SyntaxHighlighter
+                  language="solidity"
+                  style={prismStyles.atomDark}
+                  customStyle={{
+                    borderRadius: '1.5rem',
+                  }}
+                  wrapLongLines={true}
+                  wrapLines={true}
+                >
+                  {oracleCode}
+                </SyntaxHighlighter>
+              </div>
             </div>
           )}
         </div>
