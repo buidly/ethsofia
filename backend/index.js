@@ -15,20 +15,19 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('Failed to connect to MongoDB', err))
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Failed to connect to MongoDB', err))
 
 const oracleSchema = new mongoose.Schema({
   id: String,
   name: String,
   description: String,
-})
+}, { strict: false })
 
 const Oracle = mongoose.model('Oracle', oracleSchema)
 
 app.get('/oracles', async (req, res) => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
     const oracles = await Oracle.find()
     res.json(oracles)
   } catch (error) {
@@ -38,7 +37,6 @@ app.get('/oracles', async (req, res) => {
 
 app.get('/oracles/:id', async (req, res) => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
     const oracle = await Oracle.findOne({ id: req.params.id })
     if (oracle) {
       res.json(oracle)
@@ -53,7 +51,6 @@ app.get('/oracles/:id', async (req, res) => {
 // Create a new oracle
 app.post('/oracles', async (req, res) => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
     const oracle = new Oracle(req.body)
     await oracle.save()
     res.json(oracle)
@@ -64,7 +61,6 @@ app.post('/oracles', async (req, res) => {
 
 app.put('/oracles/:id', async (req, res) => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
     const oracle = await Oracle.findOneAndUpdate(
       { id: req.params.id },
       req.body,
