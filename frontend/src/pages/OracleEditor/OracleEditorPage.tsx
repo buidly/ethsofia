@@ -6,7 +6,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { Oracle } from "../../utils/types";
-import { API_URL } from "../../utils";
+import { API_URL, BASE_PUBLISHER_URL } from "../../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faClose, faPencil, faSadTear, faSave, faTerminal } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
@@ -251,14 +251,18 @@ export const OracleEditorPageContent = () => {
       const childResult = (flowRef.current as any).fetchData();
       const { isNew, ...oracleData } = childResult;
 
+      const startNodes = oracleData.nodes.filter((node: any) => node.type === 'start');
       const dataSourceNodes = oracleData.nodes.filter((node: any) => node.type === 'dataSource');
       const resultNodes = oracleData.nodes.filter((node: any) => node.type === 'result');
-      if (dataSourceNodes.length === 0 || resultNodes.length === 0) {
-        throw new Error('Data flow is incomplete');
+      if (startNodes.length === 0 || dataSourceNodes.length === 0 || resultNodes.length === 0) {
+        throw new Error('Data flow is incomplete. Please make sure you have a Start, Data Source and Aggregate Data Results nodes');
+      }
+
+      if (startNodes.length > 1 || resultNodes.length > 1) {
+        throw new Error('Data flow is invalid. Please make sure you have only one Start and one Aggregate Data Results nodes');
       }
 
       const resultNode = resultNodes[0];
-      // TODO add chesks
 
       saveLogs.push(['info', 'Preparing data for Walrus storage...']);
       setSaveLogs(saveLogs);
@@ -273,16 +277,15 @@ export const OracleEditorPageContent = () => {
       }
       const content = JSON.stringify(jsonContent, null, 2);
 
-      const basePublisherUrl = 'https://walrus-testnet-publisher.nodeinfra.com';
       const numEpochs = 10;
 
       saveLogs.push(['info', 'Saving data to Walrus...']);
       setSaveLogs(saveLogs);
 
-      const response = await axios.put(`${basePublisherUrl}/v1/store?epochs=${numEpochs}`, content);
+      const response = await axios.put(`${BASE_PUBLISHER_URL}/v1/store?epochs=${numEpochs}`, content);
       const blobId = response.data.alreadyCertified?.blobId ?? response.data.newlyCreated?.blobObject?.id;
       if (!blobId) {
-        throw new Error('Error saving oracle');
+        throw new Error('Error saving data to Walrus');
       }
 
       saveLogs.push(['info', 'Indexing data in SnapData...']);
