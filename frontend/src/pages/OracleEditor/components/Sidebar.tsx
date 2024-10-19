@@ -34,7 +34,7 @@ export const Sidebar = ({ currentNodes }: { currentNodes: MyNode[] }) => {
         <div
           className={`dndnode py-4 px-10 border-2 border-[#212121] rounded-3xl rounded-r-lg bg-[#fdfdfc] ${hasResultNode ? 'opacity-50' : ''}`}
           onDragStart={(event) => onDragStart(event, 'result')}
-          draggable={!hasStartNode}
+          draggable={!hasResultNode}
         >
           Result
         </div>
