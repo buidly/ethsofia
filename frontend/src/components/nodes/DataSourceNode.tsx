@@ -19,7 +19,7 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
   const [isValidUrl, setIsValidUrl] = useState(true);
   const [responseExample, setResponseExample] = useState<any>({});
   const [isPathExplorerOpen, setIsPathExplorerOpen] = useState(false);
-  const [selectedPath, setSelectedPath] = useState<string>('');
+  const [selectedPath, setSelectedPath] = useState<string>(data.path ?? '');
 
   useEffect(() => {
     const getUrlPaths = setTimeout(async () => {
@@ -48,7 +48,7 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
         }
 
         setResponseExample(responseData);
-        setSelectedPath('');
+        // setSelectedPath('');
       } catch (error) {
         console.error(error);
       }
@@ -61,6 +61,7 @@ function DataSourceNodeComponent({ id, data }: NodeProps<Node<{ url: string, pat
   const onPathChoosen = (path: string) => {
     setSelectedPath(path);
     setIsPathExplorerOpen(false);
+    updateNodeData(id, { path });
   }
 
   return (

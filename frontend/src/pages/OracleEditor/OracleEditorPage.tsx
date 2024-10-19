@@ -273,7 +273,7 @@ export const OracleEditorPageContent = () => {
         "dataFeedName": oracleData.title,
         "source": dataSourceNodes.map((node: any) => ({
           url: node.data.url,
-          path: node.data.path
+          path: node.data.path.replace(/"/g, '').substring(1)
         })),
         "aggType": resultNode.data.aggregate
       }
