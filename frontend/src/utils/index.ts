@@ -5,4 +5,4 @@ export type StartNode = Node<{}, 'start'>;
 export type ResultNode = Node<{ aggregate: string }, 'result'>;
 export type MyNode = StartNode | DataSourceNode | ResultNode;
 
-export const API_URL = 'http://localhost:3000';
+export const API_URL = 'http://34.147.108.248:5000';
