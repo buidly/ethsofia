@@ -90,7 +90,7 @@ export const DnDFlow = React.forwardRef(({ oracle, isEditMode }: { oracle: Oracl
   return (
     <div>
       <div className="flex flex-row-reverse rows-6 gap-6 justify-between ">
-        <div className="row-span-2 flex flex-col gap-6">
+        <div className="flex flex-col gap-6 max-w-lg w-full">
           <div className='p-3 flex flex-row gap-4 bg-[#eff0a3] rounded-full items-center'>
             <div className="bg-[#121212] rounded-full h-14 w-14 flex items-center justify-center">
               <img src="/snapdata-mini.png" alt="Logo" className="h-12 w-12" />
