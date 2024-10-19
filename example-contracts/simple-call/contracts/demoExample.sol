@@ -8,16 +8,24 @@ contract DemoExample is OracleCallerAbstract {
 
     uint64 private maxWeatherEasternEurope;
 
+    event PriceUpdated(uint64);
+
+    event WeatherUpdated(uint64);
+
     // Transaction function to call _resolveOracle and store the result
     function updateBTCPrice() public {
-        uint64 result = _resolveOracle("https://aggregator.walrus-testnet.walrus.space/v1/wJOXMI-hmvrcAkN8sewQlE7aKtI_zzV06HCAVaWUwZM");
+        uint64 result = _resolveOracle("BTC_price_feed_definition_URL");
         storedBTCPrice = result;
+        
+        emit PriceUpdated(result);
     }
 
     // Transaction function to call _resolveOracle and store the result
     function updateMaxWeather() public {
-        uint64 result = _resolveOracle("https://aggregator.walrus-testnet.walrus.space/v1/UNl2jRgM2nvREBYwtAiGXapIIgo5-T14iHzhbrC1tlQ");
+        uint64 result = _resolveOracle("weather_price_feed_definition_URL");
         maxWeatherEasternEurope = result;
+
+        emit WeatherUpdated(result);
     }
 
     // View function to return the BTC price

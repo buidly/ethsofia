@@ -2,26 +2,49 @@ import "@nomicfoundation/hardhat-ethers";
 import { ethers } from "hardhat";
 import { DemoExample } from "../typechain-types";
 
-async function main() {
+async function getGenericCaller() {
   const [deployer] = await ethers.getSigners();
-  const contractAddress = "0xAe98C2C1fa5858c682f2f857E5221Be0EbcAbC0c";
-
+  const contractAddress = "contract_address";
   const genericCaller = await ethers.getContractAt("DemoExample", contractAddress) as DemoExample;
+  return genericCaller;
+}
 
-  // // BTC/USD price feed
+async function updateBTCPrice() {
+  const genericCaller = await getGenericCaller();
   const btcPricetx = await genericCaller.updateBTCPrice();
-  console.log(btcPricetx);
+  console.log("Price feed update TxHash: ", btcPricetx.hash);
+
   const logs = await btcPricetx.wait();
-  console.log("Logs ", logs?.logs);
+  console.log("Price feed update Logs ", logs?.logs);
+}
 
-  // // BTC/USD price feed
+async function getBTCPrice() {
+  const genericCaller = await getGenericCaller();
   const btcPrice = await genericCaller.getBTCPrice();
-  console.log("BTC Price:", btcPrice.toString());
+  console.log("=======> Get BTC Price: ", btcPrice.toString());
+}
 
-  // // Max weather price feed
-  // const maxTemp = Number(await genericCaller.getMaxWeather()) / 10;
-  // console.log("Max temp:", maxTemp.toString());
+async function updateMaxWeather() {
+    const genericCaller = await getGenericCaller();
+    const maxTempTx = await genericCaller.updateMaxWeather();
+    console.log("Weather feed update TxHash: ", maxTempTx.hash);
+  
+    const logs = await maxTempTx.wait();
+    console.log("Weather feed Logs ", logs?.logs);
+  }
+  
+  async function getMaxWeather() {
+    const genericCaller = await getGenericCaller();
+    const maxTemp = await genericCaller.getMaxWeather();
+    console.log("=======> Max temp: ", maxTemp.toString());
+  }
 
+async function main() {
+  await updateBTCPrice();
+  await getBTCPrice();
+
+  // await updateMaxWeather();
+  // await getMaxWeather();
 }
 
 main()
