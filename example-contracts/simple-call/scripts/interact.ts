@@ -4,7 +4,7 @@ import { GenericCaller } from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const contractAddress = "0x962D78882e4115cd95d130E2F84f28a89f2A1Fb5";
+  const contractAddress = "0x380F163A1D6f9322E3C712a43b6c261C21214C6d";
 
   const genericCaller = await ethers.getContractAt("GenericCaller", contractAddress) as GenericCaller;
 
@@ -14,7 +14,7 @@ async function main() {
   console.log("BTC Price:", btcPrice.toString());
 
   // Max weather price feed
-  const inputDataMaxTemp = ethers.toUtf8Bytes("https://aggregator-devnet.walrus.space/v1/s_6vaKYsdclMRE6MV1rS3cWhA2NouVoQWlwVvY5OzzU");
+  const inputDataMaxTemp = ethers.toUtf8Bytes("https://aggregator-devnet.walrus.space/v1/0x55479d7b3bdda3e6d00d429e0eec6db84b68b46a109cecfaa86f98abfc390f7a");
   const maxTemp = Number(await genericCaller.callAPI(inputDataMaxTemp)) / 10;
   console.log("Max temp:", maxTemp.toString());
 
