@@ -1095,8 +1095,6 @@ func (c *ResolveOracleContract) Run(input []byte) ([]byte, error) {
 	if err != nil {
 	}
 
-	log.Info(fmt.Sprintf("------XXXX-----> dataFeed body response for %s", response.body))
-
 	// Pretty-print the dataFeed struct
 	prettyDataFeed, err := json.MarshalIndent(dataFeed, "", " ")
 	if err != nil {
