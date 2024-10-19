@@ -6,7 +6,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const app = express()
-const port = 5000
+const port = 5001
 
 app.use(cors())
 app.use(express.json())
@@ -19,7 +19,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   .catch(err => console.error('Failed to connect to MongoDB', err))
 
 const oracleSchema = new mongoose.Schema({
-  id: String,
   name: String,
   description: String,
 }, { strict: false })
@@ -31,13 +30,14 @@ app.get('/oracles', async (req, res) => {
     const oracles = await Oracle.find()
     res.json(oracles)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Failed to fetch oracles' })
   }
 })
 
 app.get('/oracles/:id', async (req, res) => {
   try {
-    const oracle = await Oracle.findOne({ id: req.params.id })
+    const oracle = await Oracle.findOne({ _id: req.params.id })
     if (oracle) {
       res.json(oracle)
     } else {
@@ -62,7 +62,7 @@ app.post('/oracles', async (req, res) => {
 app.put('/oracles/:id', async (req, res) => {
   try {
     const oracle = await Oracle.findOneAndUpdate(
-      { id: req.params.id },
+      { _id: req.params.id },
       req.body,
       { new: true }
     )

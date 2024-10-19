@@ -2,7 +2,7 @@ import { Edge } from "@xyflow/react";
 import { MyNode } from ".";
 
 export interface Oracle {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   nodes: MyNode[];

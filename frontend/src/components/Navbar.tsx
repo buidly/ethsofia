@@ -10,10 +10,10 @@ export const NavBar = () => {
           </Link>
           <div className="flex items-center gap-6">
             <Link to="/explore">Explore</Link>
-            <Link to="/about">About</Link>
+            <Link to="#">About</Link>
           </div>
           <div className="flex items-center justify-end w-48">
-            <Link to="/" className="py-4 px-10 border-2 border-[#212121] rounded-3xl">Login</Link>
+            <img src="https://avatar.iran.liara.run/public/17" className="border-2 border-[#212121] rounded-full w-12 h-12 object-cover"></img>
           </div>
         </div>
       </nav>

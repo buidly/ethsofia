@@ -12,13 +12,13 @@ const OraclesListItem = ({ oracle }: { oracle: Oracle }) => {
     "#d8dfe9",
     "#cfdeca"
   ];
-  const idSum = oracle.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const idSum = oracle._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const colorIndex = idSum % itemColors.length;
   const color = itemColors[colorIndex];
 
   return (
     <div className="p-10  rounded-3xl flex flex-row-reverse gap-6 justify-between" style={{ backgroundColor: color }}>
-      <Link to={`/oracles/${oracle.id}`}>
+      <Link to={`/oracles/${oracle._id}`}>
         <FontAwesomeIcon icon={faArrowUpLong} className="h-6 w-6 rotate-45" />
       </Link>
       <div className="flex flex-col gap-4">
@@ -83,7 +83,7 @@ export const OraclesList = () => {
   return (
     <div className="grid grid-cols-3 gap-6">
       {oracles.map(oracle => (
-        <OraclesListItem oracle={oracle} key={oracle.id} />
+        <OraclesListItem oracle={oracle} key={oracle._id} />
       ))}
       <div className="p-10  rounded-3xl flex flex-row-reverse gap-6 justify-between bg-[#fdfdfc]">
         <Link to={`/oracles/new`}>
