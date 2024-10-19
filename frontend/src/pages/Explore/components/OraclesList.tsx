@@ -96,7 +96,7 @@ export const OraclesList = ({ isHomePage }: { isHomePage?: boolean }) => {
           </Link>
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl">Create new oracle</h2>
-            <p className="font-normal">Seamless access to real-world data for your blockchain. One Snap, infinite possibilities with SnapData.
+            <p className="font-normal">Seamless access to real-world data for your use case. One Snap, infinite possibilities with SnapData.
             </p>
           </div>
         </div >
